@@ -4,6 +4,6 @@ public class Main
 {
     public static void main(String[] args)
     {
-        System.out.println(legal.Document.levenshtein("aba", "bb"));
+        System.out.println("aba");
     }
 }

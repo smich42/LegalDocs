@@ -13,42 +13,6 @@ public class Document
     private String name;
     private LCase lCase;
 
-    public static int levenshtein(String A, String B)
-    {
-        int[][] dp = new int[2][B.length() + 1];
-
-        int prevRow = 0;
-        int curRow = 1;
-
-        for (int i = 0; i < B.length(); ++i)
-        {
-            dp[prevRow][i] = i;
-        }
-    
-        for (int i = 0; i < A.length(); ++i)
-        {
-            dp[curRow][0] = i + 1;
-
-            for (int j = 0; j < B.length(); ++j)
-            {
-                int sub = (A.charAt(i) != B.charAt(j)) ? 1 : 0;
-
-                dp[curRow][j + 1] = Math.min(
-                        Math.min(
-                            dp[curRow][j] + 1,
-                            dp[prevRow][j + 1] + 1
-                        ),
-                        dp[prevRow][j] + sub
-                    );
-            }
-            
-            prevRow = (prevRow == 1) ? 0 : 1;
-            curRow = (curRow == 1) ? 0 : 1;
-        }
-
-        return dp[prevRow][B.length()];
-    }
-
     public Document(File file, LCase lCase)
     {
         this(file, new String(), lCase);
