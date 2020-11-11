@@ -15,7 +15,7 @@ public class Document
 
     public Document(File file, LCase lCase)
     {
-        this(file, new String(), lCase);
+        this(file, "", lCase);
     }
 
     public Document(File file, String name, LCase lCase)

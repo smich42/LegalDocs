@@ -1,9 +1,10 @@
 package legal;
 
+import java.util.List;
 import java.util.ArrayList;
 
 public class DocumentManager
 {
-    private ArrayList<Document> docs;
+    private List<Document> docs;
     
 }
