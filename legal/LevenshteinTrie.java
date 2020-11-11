@@ -1,5 +1,10 @@
 package legal;
 
+import java.util.Map;
+
+import javax.crypto.spec.RC2ParameterSpec;
+
+import java.util.Collection;
 import java.util.HashMap;
 
 public class LevenshteinTrie
@@ -7,12 +12,12 @@ public class LevenshteinTrie
     private class Node
     {
         private char val;
-        public HashMap<Character, Node> children;
+        private Map<Character, Node> children;
 
         public Node(char val)
         {
             this.val = val;
-            this.children = new HashMap<Character, Node>();
+            this.children = new HashMap<>();
         }
 
         public char getVal()
@@ -37,6 +42,11 @@ public class LevenshteinTrie
                 return this.children.get(val);
             }
             return null;
+        }
+
+        public Collection<Node> getChildren()
+        {
+            return this.children.values();
         }
     }
 
@@ -85,16 +95,44 @@ public class LevenshteinTrie
 
     public void insert(String S)
     {
+        Node cur = root;
+
         for (char c : S.toCharArray())
         {
-            Node cur = root;
-            
             if (!cur.hasChild(c))
             {
                 cur.addChild(new Node(c));
             }
             
             cur = cur.getChild(c);
+        }
+    }
+
+    public void print()
+    {
+        printRecurse(root, 0);
+    }
+
+    private void printRecurse(Node n, int level)
+    {
+        for (int i = 1; i < level - 1; ++i)
+        {
+            System.out.print("..");
+        }
+
+        if (level > 1)
+        {
+            System.out.print("|_");
+        }
+    
+        if (level != 0)
+        {
+            System.out.println(n.getVal());
+        }
+
+        for (Node next : n.getChildren())
+        {
+            printRecurse(next, level + 1);
         }
     }
 }
