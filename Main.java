@@ -8,6 +8,10 @@ public class Main
 
         lt.insert("AAA");
         lt.insert("ABB");
+        lt.insert("ABA");
+        lt.insert("AAAA");
+        lt.insert("BAA");
+        lt.insert("BBB");
         lt.insert("BBB");
         lt.insert("BBC");
         lt.insert("BBCA");
@@ -16,6 +20,10 @@ public class Main
         lt.insert("ABBA");
         lt.insert("ABBC");
         
-        lt.print();
+        
+        for (String S : lt.getMatchingNames("CC", 2))
+        {
+            System.out.println(S);
+        }
     }
 }
