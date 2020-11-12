@@ -7,7 +7,7 @@ public class LCourt
 
     public LCourt(String name)
     {
-        this(name, new String());
+        this(name, "");
     }
 
     public LCourt(String name, String address)
