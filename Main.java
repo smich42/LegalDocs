@@ -1,29 +1,40 @@
+import java.io.File;
+import java.util.Scanner;
+
 import legal.*;
 
 public class Main
 {
     public static void main(String[] args)
     {
-        LevenshteinTrie lt = new LevenshteinTrie();
+        DocumentManager dm = new DocumentManager();
 
-        lt.insert("AAA");
-        lt.insert("ABB");
-        lt.insert("ABA");
-        lt.insert("AAAA");
-        lt.insert("BAA");
-        lt.insert("BBB");
-        lt.insert("BBB");
-        lt.insert("BBC");
-        lt.insert("BBCA");
-        lt.insert("BBCC");
-        lt.insert("ACB");
-        lt.insert("ABBA");
-        lt.insert("ABBC");
-        
-        
-        for (String S : lt.getMatchingNames("CC", 2))
+        File directory = new File("C:/Users/stavr/OneDrive/Desktop/test");
+        File[] files = directory.listFiles();
+
+        for (File f : files)
         {
-            System.out.println(S);
+            dm.addDocument(new Document(f));
         }
+
+        Scanner in = new Scanner(System.in);
+
+        String search = in.nextLine();
+
+        while (!search.isBlank())
+        {
+            System.out.println("------------");
+
+            for (Document d : dm.searchDocuments(search))
+            {
+                System.out.println(d.getName());
+            }
+
+            System.out.println("------------");
+
+            search = in.nextLine();
+        }
+
+        in.close();
     }
 }

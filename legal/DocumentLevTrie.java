@@ -10,20 +10,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 
-public class LevenshteinTrie
+public class DocumentLevTrie
 {
     private class Node
     {
         // Slightly unconventional node structure;
         // I am saving characters in the nodes--the edges have no values
         private char val;
-        private String name;
+        private Document doc;
         private Map<Character, Node> children;
 
         public Node(char val)
         {
             this.val = val;
-            this.name = null;
+            this.doc = null;
             this.children = new HashMap<>();
         }
 
@@ -32,19 +32,19 @@ public class LevenshteinTrie
             return this.val;
         }
 
-        public boolean hasName()
+        public boolean isDocument()
         {
-            return this.name != null && !this.name.isEmpty();
+            return this.doc != null;
         }
 
-        public String getName()
+        public void addDocument(Document doc)
         {
-            return this.name;
+            this.doc = doc;
         }
 
-        public void addName(String name)
+        public Document getDocument()
         {
-            this.name = name;
+            return this.doc;
         }
 
         public void addChild(Node child)
@@ -80,58 +80,17 @@ public class LevenshteinTrie
 
     Node root;
 
-    public LevenshteinTrie()
+    public DocumentLevTrie()
     {
         root = new Node('\0');
     }
 
-    /* Vanilla Levenshtein implementation optimised to only use two matrix rows
-    private static int levenshtein(String A, String B)
+    public List<Document> getMatchingDocs(String pattern, int maxDistance)
     {
-        int[][] distanceMatrix = new int[2][B.length() + 1];
+        LinkedList<Pair<Document, Integer>> distances = computeSubtree(this.root, pattern, new int[0]);
+        LinkedList<Document> results = new LinkedList<>();
 
-        int prevRow = 0;
-        int curRow = 1;
-
-        for (int i = 0; i < B.length(); ++i)
-        {
-            distanceMatrix[prevRow][i] = i;
-        }
-    
-        for (int i = 0; i < A.length(); ++i)
-        {
-            distanceMatrix[curRow][0] = i + 1;
-
-            for (int j = 0; j < B.length(); ++j)
-            {
-                int sub = (A.charAt(i) != B.charAt(j)) ? 1 : 0;
-
-                distanceMatrix[curRow][j + 1] = Math.min(
-                        Math.min(
-                            distanceMatrix[curRow][j] + 1,
-                            distanceMatrix[prevRow][j + 1] + 1
-                        ),
-                        distanceMatrix[prevRow][j] + sub
-                    );
-            }
-            
-            prevRow = (prevRow == 1) ? 0 : 1;
-            curRow = (curRow == 1) ? 0 : 1;
-        }
-
-        return distanceMatrix[prevRow][B.length()];
-    }
-    */
-
-    public List<String> getMatchingNames(String pattern, int maxDistance)
-    {
-        int[] firstRow = new int[pattern.length() + 1];
-
-
-        LinkedList<Pair<String, Integer>> distances = computeNode(this.root, pattern, firstRow);
-        LinkedList<String> results = new LinkedList<>();
-
-        for (Pair<String, Integer> distance : distances)
+        for (Pair<Document, Integer> distance : distances)
         {
             if (distance.getValue() <= maxDistance)
             {
@@ -142,22 +101,22 @@ public class LevenshteinTrie
         return results;
     }
 
-    private LinkedList<Pair<String, Integer>> computeNode(Node curNode, String pattern, int[] prevRow)
+    private LinkedList<Pair<Document, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
     {
-        int[] nextRow = new int[pattern.length() + 1];
+        int[] curRow = new int[pattern.length() + 1];
         
         // When we are at the root node we have 0 characters for the name string
         // Therefore we need i insertions for the ith position of the row
         if (curNode == this.root)
         {
-            for (int i = 0; i < nextRow.length; ++i)
+            for (int i = 0; i < curRow.length; ++i)
             {
-                nextRow[i] = i;
+                curRow[i] = i;
             }
         }
         else
         {
-            nextRow[0] = prevRow[0] + 1;
+            curRow[0] = prevRow[0] + 1;
             
             // Make matching non-case-sensitive
             char currentPos = Character.toLowerCase(curNode.getVal());
@@ -170,23 +129,23 @@ public class LevenshteinTrie
                 // 0 otherwise
                 int subCost = (currentPos != patternPos) ? 1 : 0;
 
-                nextRow[i] = Math.min(
+                curRow[i] = Math.min(
                     Math.min(
                         prevRow[i] + 1, // Deletion
-                        nextRow[i - 1] + 1 // Insertion 
+                        curRow[i - 1] + 1 // Insertion 
                     ),
                     prevRow[i - 1] + subCost // Substitution
                 );
             }
         }
 
-        LinkedList<Pair<String, Integer>> results = new LinkedList<>();
+        LinkedList<Pair<Document, Integer>> results = new LinkedList<>();
 
-        if (curNode.hasName())
+        if (curNode.isDocument())
         {
-            Pair<String, Integer> result = new Pair<>(
-                curNode.getName(),
-                nextRow[nextRow.length - 1] // Levenshtein distance
+            Pair<Document, Integer> result = new Pair<>(
+                curNode.getDocument(),
+                curRow[curRow.length - 1] // Levenshtein distance
             );
 
             results.add(result);
@@ -195,14 +154,16 @@ public class LevenshteinTrie
         // Recursively join lists to construct a list of all the results in this branch
         for (Node nextNode : curNode.getChildren())
         {
-            results.addAll(computeNode(nextNode, pattern, nextRow));
+            results.addAll(computeSubtree(nextNode, pattern, curRow));
         }
 
         return results;
     }
 
-    public void insert(String name)
+    public void insert(Document doc)
     {
+        String name = doc.getName();
+
         // Start from the root node
         Node cur = root;
 
@@ -219,7 +180,7 @@ public class LevenshteinTrie
             cur = cur.getChild(c);
         }
 
-        cur.addName(name);
+        cur.addDocument(doc);
     }
 
     public void print()

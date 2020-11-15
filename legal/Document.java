@@ -13,9 +13,24 @@ public class Document
     private String name;
     private LCase lCase;
 
+    public Document(File file)
+    {
+        this(file, null);
+    }
+
     public Document(File file, LCase lCase)
     {
-        this(file, "", lCase);
+        this.file = file;
+        
+        // Set the name to the filename if no name is provided
+        String fullname = file.getName();
+        int extensionIndex = fullname.lastIndexOf('.');
+
+        // Remove the extension
+        String name = (extensionIndex != -1) ? fullname.substring(0, extensionIndex) : fullname;
+
+        this.setName(name);
+        this.setCase(lCase);
     }
 
     public Document(File file, String name, LCase lCase)
