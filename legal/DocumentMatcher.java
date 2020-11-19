@@ -1,29 +1,28 @@
 package legal;
 
+import java.io.IOException;
 import java.util.Collection;
-
 import javafx.util.Pair;
 
 import java.util.Map;
 import java.util.HashMap;
 
-import java.util.List;
 import java.util.LinkedList;
 
-public class DocumentLevTrie
+public class DocumentMatcher
 {
     private class Node
     {
         // Slightly unconventional node structure;
         // I am saving characters in the nodes--the edges have no values
         private char val;
-        private Document doc;
+        private String term;
         private Map<Character, Node> children;
 
         public Node(char val)
         {
             this.val = val;
-            this.doc = null;
+            this.term = null;
             this.children = new HashMap<>();
         }
 
@@ -32,19 +31,19 @@ public class DocumentLevTrie
             return this.val;
         }
 
-        public boolean isDocument()
+        public boolean isTerm()
         {
-            return this.doc != null;
+            return this.term != null;
         }
 
-        public void addDocument(Document doc)
+        public void addTerm(String term)
         {
-            this.doc = doc;
+            this.term = term;
         }
 
-        public Document getDocument()
+        public String getTerm()
         {
-            return this.doc;
+            return this.term;
         }
 
         public void addChild(Node child)
@@ -79,29 +78,63 @@ public class DocumentLevTrie
     }
 
     Node root;
+    Document doc;
 
-    public DocumentLevTrie()
+    public DocumentMatcher(Document doc)
     {
+        this.doc = doc;
+        
         root = new Node('\0');
+
+        try
+        {
+            for (String term : doc.listTerms())
+            {
+                this.insert(term);
+            }
+        }
+        catch (IOException e)
+        {
+        }
     }
 
-    public List<Document> getMatchingDocs(String pattern, int maxDistance)
+    private int findMinDistance(String pattern)
     {
-        LinkedList<Pair<Document, Integer>> distances = computeSubtree(this.root, pattern, new int[0]);
-        LinkedList<Document> results = new LinkedList<>();
+        LinkedList<Pair<String, Integer>> patternDistances = computeSubtree(this.root, pattern, new int[0]);
+        int min = Integer.MAX_VALUE;
 
-        for (Pair<Document, Integer> distance : distances)
+        for (Pair<String, Integer> p : patternDistances)
         {
-            if (distance.getValue() <= maxDistance)
+            if (p.getValue() < min)
             {
-                results.add(distance.getKey());
+                min = p.getValue();
             }
         }
 
-        return results;
+        return min;
     }
 
-    private LinkedList<Pair<Document, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
+    public boolean isMatch(String pattern, int maxDistance)
+    {
+        // Wiktor Stribizew's answer at stackoverflow.com/a/56060289/7970195
+        String[] subPatterns = pattern.split("[\\p{P}\\p{S}]");
+        
+        double avgSubDistance = 0;
+
+        for (String subPattern : subPatterns)
+        {
+            avgSubDistance += (double)findMinDistance(subPattern);
+        }
+
+        avgSubDistance /= subPatterns.length;
+
+        int patternDistance = findMinDistance(Document.removePunctuation(pattern));
+        
+        // True if sufficiently close to whole pattern or to average of individual distances
+        return Math.min((double) patternDistance, avgSubDistance) <= maxDistance;
+    }
+
+    private LinkedList<Pair<String, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
     {
         int[] curRow = new int[pattern.length() + 1];
         
@@ -139,12 +172,12 @@ public class DocumentLevTrie
             }
         }
 
-        LinkedList<Pair<Document, Integer>> results = new LinkedList<>();
+        LinkedList<Pair<String, Integer>> results = new LinkedList<>();
 
-        if (curNode.isDocument())
+        if (curNode.isTerm())
         {
-            Pair<Document, Integer> result = new Pair<>(
-                curNode.getDocument(),
+            Pair<String, Integer> result = new Pair<>(
+                curNode.getTerm(),
                 curRow[curRow.length - 1] // Levenshtein distance
             );
 
@@ -160,14 +193,14 @@ public class DocumentLevTrie
         return results;
     }
 
-    public void insert(Document doc)
+    public void insert(String term)
     {
-        String name = doc.getName();
+        term = Document.removePunctuation(term);
 
         // Start from the root node
         Node cur = root;
 
-        for (char c : name.toCharArray())
+        for (char c : term.toCharArray())
         {
             // If a child node with value c already exists,
             // we should not add it again
@@ -180,7 +213,12 @@ public class DocumentLevTrie
             cur = cur.getChild(c);
         }
 
-        cur.addDocument(doc);
+        cur.addTerm(term);
+    }
+
+    public Document getDocument()
+    {
+        return this.doc;
     }
 
     public void print()

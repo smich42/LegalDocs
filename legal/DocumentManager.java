@@ -1,24 +1,25 @@
 package legal;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
 
 public class DocumentManager
 {
     private List<Document> docs;
-    private DocumentLevTrie docsLT;
+    private List<DocumentMatcher> docMatchers;
 
     public DocumentManager()
     {
         this.docs = new ArrayList<>();
-        this.docsLT = new DocumentLevTrie();
+        this.docMatchers = new LinkedList<>();
     }
 
     public void addDocument(Document doc)
     {
         this.docs.add(doc);
-        this.docsLT.insert(doc);
+        this.docMatchers.add(new DocumentMatcher(doc));
     }
 
     public List<Document> getDocuments()
@@ -26,10 +27,25 @@ public class DocumentManager
         // Return immutable version of document list
         return Collections.unmodifiableList(this.docs);
     }
-
+    
     public List<Document> searchDocuments(String searchQuery)
     {
+        return searchDocuments(searchQuery, 2);
+    }
+
+    public List<Document> searchDocuments(String searchQuery, int maxDistance)
+    {
+        List<Document> matchingDocs = new LinkedList<>();
+
+        for (DocumentMatcher docMatcher : this.docMatchers)
+        {
+            if (docMatcher.isMatch(searchQuery, maxDistance))
+            {
+                matchingDocs.add(docMatcher.getDocument());
+            }
+        }
+
         // Return immutable version of the list of matching documents
-        return Collections.unmodifiableList(this.docsLT.getMatchingDocs(searchQuery, 2));
+        return Collections.unmodifiableList(matchingDocs);
     }
 }

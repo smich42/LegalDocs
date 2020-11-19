@@ -1,5 +1,5 @@
 import java.io.File;
-import java.util.Scanner;
+import java.util.List;
 
 import legal.*;
 
@@ -9,32 +9,24 @@ public class Main
     {
         DocumentManager dm = new DocumentManager();
 
-        File directory = new File("C:/Users/stavr/OneDrive/Desktop/test");
-        File[] files = directory.listFiles();
+        File A = new File("C:/Users/stavr/OneDrive/Desktop/A.txt");
+        File B = new File("C:/Users/stavr/OneDrive/Desktop/B.txt");
+        File C = new File("C:/Users/stavr/OneDrive/Desktop/C.txt");
 
-        for (File f : files)
+        dm.addDocument(new Document(A));
+        dm.addDocument(new Document(B));
+        dm.addDocument(new Document(C));
+
+        for (Document match : dm.searchDocuments("Hello.world", 0))
         {
-            dm.addDocument(new Document(f));
+            System.out.println(match.getFileName());
         }
 
-        Scanner in = new Scanner(System.in);
+        System.out.println("------");
 
-        String search = in.nextLine();
-
-        while (!search.isBlank())
+        for (Document match : dm.searchDocuments("Hello.world", 2))
         {
-            System.out.println("------------");
-
-            for (Document d : dm.searchDocuments(search))
-            {
-                System.out.println(d.getName());
-            }
-
-            System.out.println("------------");
-
-            search = in.nextLine();
+            System.out.println(match.getFileName());
         }
-
-        in.close();
     }
 }

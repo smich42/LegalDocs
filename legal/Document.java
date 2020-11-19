@@ -1,6 +1,11 @@
 package legal;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Document
 {
@@ -27,9 +32,9 @@ public class Document
         int extensionIndex = fullname.lastIndexOf('.');
 
         // Remove the extension
-        String name = (extensionIndex != -1) ? fullname.substring(0, extensionIndex) : fullname;
+        String noExt = (extensionIndex != -1) ? fullname.substring(0, extensionIndex) : fullname;
 
-        this.setName(name);
+        this.setName(noExt);
         this.setCase(lCase);
     }
 
@@ -40,11 +45,28 @@ public class Document
         this.setCase(lCase);
     }
 
-    public String getFileName()
+    public static String removePunctuation(String S)
     {
-        return this.file.getName();
+        return S.replaceAll("\\p{P}", "");
     }
 
+    public List<String> listTerms() throws IOException
+    {
+        List<String> terms = new LinkedList<>();
+
+        try (Scanner input = new Scanner(this.file))
+        {
+            input.useDelimiter(" ");
+
+            while (input.hasNext())
+            {
+                terms.add(removePunctuation(input.next()));
+            }
+        }
+
+        return Collections.unmodifiableList(terms);
+    }
+    
     public String getRelativePath()
     {
         return this.file.getPath();
@@ -58,6 +80,11 @@ public class Document
     public String getName()
     {
         return this.name;
+    }
+
+    public String getFileName()
+    {
+        return this.file.getName();
     }
 
     public void setName(String name)
