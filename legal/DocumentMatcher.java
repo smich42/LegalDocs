@@ -1,6 +1,5 @@
 package legal;
 
-import java.io.IOException;
 import java.util.Collection;
 import javafx.util.Pair;
 
@@ -8,13 +7,14 @@ import java.util.Map;
 import java.util.HashMap;
 
 import java.util.LinkedList;
+import java.util.List;
 
 public class DocumentMatcher
 {
     private class Node
     {
         // Slightly unconventional node structure;
-        // I am saving characters in the nodes--the edges have no values
+        // Characters saved in the nodes--edges have no values
         private char val;
         private String term;
         private Map<Character, Node> children;
@@ -45,7 +45,7 @@ public class DocumentMatcher
         {
             return this.term;
         }
-
+    
         public void addChild(Node child)
         {
             // Only add the child node only if there is no other child
@@ -80,27 +80,34 @@ public class DocumentMatcher
     Node root;
     Document doc;
 
+    static final int SEARCH_WORDS_MAX = 3;
+
     public DocumentMatcher(Document doc)
     {
         this.doc = doc;
         
         root = new Node('\0');
 
-        try
+        List<String> terms = new LinkedList<>();
+
+        for (int wordsPerTerm = 1; wordsPerTerm <= SEARCH_WORDS_MAX; ++wordsPerTerm)
         {
-            for (String term : doc.listTerms())
+            for (int offset = 0; offset < wordsPerTerm; ++offset)
             {
-                this.insert(term);
+                terms.addAll(doc.listTerms(wordsPerTerm, offset));
             }
         }
-        catch (IOException e)
+        
+        for (String term : terms)
         {
+            this.insert(term);
         }
     }
 
     private int findMinDistance(String pattern)
     {
         LinkedList<Pair<String, Integer>> patternDistances = computeSubtree(this.root, pattern, new int[0]);
+        
         int min = Integer.MAX_VALUE;
 
         for (Pair<String, Integer> p : patternDistances)
@@ -116,22 +123,9 @@ public class DocumentMatcher
 
     public boolean isMatch(String pattern, int maxDistance)
     {
-        // Wiktor Stribizew's answer at stackoverflow.com/a/56060289/7970195
-        String[] subPatterns = pattern.split("[\\p{P}\\p{S}]");
-        
-        double avgSubDistance = 0;
+        pattern = Document.replacePunctuation(pattern, " ");
 
-        for (String subPattern : subPatterns)
-        {
-            avgSubDistance += (double)findMinDistance(subPattern);
-        }
-
-        avgSubDistance /= subPatterns.length;
-
-        int patternDistance = findMinDistance(Document.removePunctuation(pattern));
-        
-        // True if sufficiently close to whole pattern or to average of individual distances
-        return Math.min((double) patternDistance, avgSubDistance) <= maxDistance;
+        return findMinDistance(pattern) <= maxDistance;
     }
 
     private LinkedList<Pair<String, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
@@ -196,7 +190,7 @@ public class DocumentMatcher
     public void insert(String term)
     {
         term = Document.removePunctuation(term);
-
+        
         // Start from the root node
         Node cur = root;
 

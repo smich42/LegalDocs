@@ -8,18 +8,14 @@ import java.util.ArrayList;
 public class DocumentManager
 {
     private List<Document> docs;
-    private List<DocumentMatcher> docMatchers;
-
     public DocumentManager()
     {
         this.docs = new ArrayList<>();
-        this.docMatchers = new LinkedList<>();
     }
 
     public void addDocument(Document doc)
     {
         this.docs.add(doc);
-        this.docMatchers.add(new DocumentMatcher(doc));
     }
 
     public List<Document> getDocuments()
@@ -37,8 +33,10 @@ public class DocumentManager
     {
         List<Document> matchingDocs = new LinkedList<>();
 
-        for (DocumentMatcher docMatcher : this.docMatchers)
+        for (Document doc : this.docs)
         {
+            DocumentMatcher docMatcher = new DocumentMatcher(doc);
+
             if (docMatcher.isMatch(searchQuery, maxDistance))
             {
                 matchingDocs.add(docMatcher.getDocument());
