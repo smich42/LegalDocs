@@ -6,81 +6,14 @@ import javafx.util.Pair;
 import java.util.Map;
 import java.util.HashMap;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
 public class DocumentMatcher
 {
-    private class Node
-    {
-        // Slightly unconventional node structure;
-        // Characters saved in the nodes--edges have no values
-        private char val;
-        private String term;
-        private Map<Character, Node> children;
-
-        public Node(char val)
-        {
-            this.val = val;
-            this.term = null;
-            this.children = new HashMap<>();
-        }
-
-        public char getVal()
-        {
-            return this.val;
-        }
-
-        public boolean isTerm()
-        {
-            return this.term != null;
-        }
-
-        public void addTerm(String term)
-        {
-            this.term = term;
-        }
-
-        public String getTerm()
-        {
-            return this.term;
-        }
-    
-        public void addChild(Node child)
-        {
-            // Only add the child node only if there is no other child
-            // with the same key
-            if (!this.children.containsKey(child.getVal()))
-            {
-                this.children.put(child.getVal(), child);
-            }
-        }
-
-        public boolean hasChild(char val)
-        {
-            return this.children.containsKey(val);
-        }
-
-        public Node getChild(char val)
-        {
-            if (this.hasChild(val))
-            {
-                return this.children.get(val);
-            }
-            
-            return null;
-        }
-
-        public Collection<Node> getChildren()
-        {
-            return this.children.values();
-        }
-    }
-
     Node root;
     Document doc;
 
-    static final int SEARCH_WORDS_MAX = 3;
+    static final int SEARCH_WORDS_MAX = 2;
 
     public DocumentMatcher(Document doc)
     {
@@ -88,25 +21,21 @@ public class DocumentMatcher
         
         root = new Node('\0');
 
-        List<String> terms = new LinkedList<>();
-
         for (int wordsPerTerm = 1; wordsPerTerm <= SEARCH_WORDS_MAX; ++wordsPerTerm)
         {
             for (int offset = 0; offset < wordsPerTerm; ++offset)
             {
-                terms.addAll(doc.listTerms(wordsPerTerm, offset));
+                for (String term : doc.listTerms(wordsPerTerm, offset))
+                {
+                    this.insert(term);
+                }
             }
-        }
-        
-        for (String term : terms)
-        {
-            this.insert(term);
         }
     }
 
     private int findMinDistance(String pattern)
     {
-        LinkedList<Pair<String, Integer>> patternDistances = computeSubtree(this.root, pattern, new int[0]);
+        ArrayList<Pair<String, Integer>> patternDistances = computeSubtree(this.root, pattern, new int[0]);
         
         int min = Integer.MAX_VALUE;
 
@@ -128,7 +57,7 @@ public class DocumentMatcher
         return findMinDistance(pattern) <= maxDistance;
     }
 
-    private LinkedList<Pair<String, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
+    private ArrayList<Pair<String, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
     {
         int[] curRow = new int[pattern.length() + 1];
         
@@ -166,7 +95,7 @@ public class DocumentMatcher
             }
         }
 
-        LinkedList<Pair<String, Integer>> results = new LinkedList<>();
+        ArrayList<Pair<String, Integer>> results = new ArrayList<>();
 
         if (curNode.isTerm())
         {
@@ -242,6 +171,72 @@ public class DocumentMatcher
         for (Node next : n.getChildren())
         {
             printRecurse(next, level + 1);
+        }
+    }
+
+    private class Node
+    {
+        // Slightly unconventional node structure;
+        // Characters saved in the nodes--edges have no values
+        private char val;
+        private String term;
+        private Map<Character, Node> children;
+
+        public Node(char val)
+        {
+            this.val = val;
+            this.term = null;
+            this.children = new HashMap<>();
+        }
+
+        public char getVal()
+        {
+            return this.val;
+        }
+
+        public boolean isTerm()
+        {
+            return this.term != null;
+        }
+
+        public void addTerm(String term)
+        {
+            this.term = term;
+        }
+
+        public String getTerm()
+        {
+            return this.term;
+        }
+    
+        public void addChild(Node child)
+        {
+            // Only add the child node only if there is no other child
+            // with the same key
+            if (!this.children.containsKey(child.getVal()))
+            {
+                this.children.put(child.getVal(), child);
+            }
+        }
+
+        public boolean hasChild(char val)
+        {
+            return this.children.containsKey(val);
+        }
+
+        public Node getChild(char val)
+        {
+            if (this.hasChild(val))
+            {
+                return this.children.get(val);
+            }
+            
+            return null;
+        }
+
+        public Collection<Node> getChildren()
+        {
+            return this.children.values();
         }
     }
 }
