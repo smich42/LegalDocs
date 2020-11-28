@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Document
+public class Document implements java.io.Serializable
 {
     public enum DocumentTypes
     {
@@ -31,7 +31,7 @@ public class Document
         }
 
         this.file = file;
-        
+
         // Set the name to the filename if no name is provided
         String fullname = file.getName();
         int extensionIndex = fullname.lastIndexOf('.');
@@ -144,6 +144,11 @@ public class Document
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public long getLastModified()
+    {
+        return this.file.lastModified();
     }
 
     public LCase getCase()

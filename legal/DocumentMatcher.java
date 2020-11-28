@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 import java.util.ArrayList;
 
-public class DocumentMatcher
+public class DocumentMatcher implements java.io.Serializable
 {
     Node root;
     Document doc;
 
-    static final int SEARCH_WORDS_MAX = 2;
+    public static final int SEARCH_WORDS_MAX = 3;
 
     public DocumentMatcher(Document doc)
     {
@@ -174,7 +174,7 @@ public class DocumentMatcher
         }
     }
 
-    private class Node
+    private class Node implements java.io.Serializable
     {
         // Slightly unconventional node structure;
         // Characters saved in the nodes--edges have no values

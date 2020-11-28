@@ -1,6 +1,6 @@
 package legal;
 
-public class LCourt
+public class LCourt implements java.io.Serializable 
 {
     private String name;
     private String address;

@@ -15,7 +15,7 @@ public class Main
         {
             dm.addDocument(new Document(f));
         }
-
+        
         Scanner in = new Scanner(System.in);
         String S;
         
