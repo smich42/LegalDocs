@@ -2,7 +2,7 @@ package legal;
 
 import java.util.Date;
 
-public class LCase
+public class LCase implements java.io.Serializable 
 {
     private String name;
     private LCourt lCourt;

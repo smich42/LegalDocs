@@ -1,6 +1,6 @@
 package legal;
 
-public class LClient
+public class LClient implements java.io.Serializable
 {
     private String name;
     private String email;
