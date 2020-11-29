@@ -8,7 +8,7 @@ public class LClient
 
     public LClient(String name)
     {
-        this(name, new String(), new String());
+        this(name, "", "");
     }
 
     public LClient(String name, String email, String phone)
