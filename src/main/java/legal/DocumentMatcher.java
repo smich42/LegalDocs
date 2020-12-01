@@ -1,19 +1,14 @@
 package legal;
 
-import java.io.*;
-import java.util.Collection;
-
 import javafx.util.Pair;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.ArrayList;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DocumentMatcher
 {

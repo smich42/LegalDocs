@@ -1,11 +1,11 @@
+import legal.Document;
+import legal.DocumentManager;
+
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import legal.*;
 
 public class Main
 {
@@ -13,13 +13,13 @@ public class Main
     {
         DocumentManager dm = new DocumentManager();
 
-        File directory = new File("C:/Users/stavr/Desktop/files2");
+        File directory = new File("C:/Users/stavr/Desktop/files/");
 
         for (File f : Objects.requireNonNull(directory.listFiles()))
         {
             dm.addDocument(new Document(f));
         }
-        
+
         Scanner in = new Scanner(System.in);
         String S;
 
@@ -28,14 +28,23 @@ public class Main
             System.out.print("> ");
 
             S = in.nextLine();
+            String[] queries = S.split(" OR ");
 
             long start = System.nanoTime();
 
-            List<Document> matches = dm.searchExactly(S);
+            Map<String, List<Document>> matches = dm.search(queries, 0);
 
-            for (Document match : matches)
+            for (String query : queries)
             {
-                System.out.println(match.getFileName());
+                if (!matches.containsKey(query))
+                {
+                    continue;
+                }
+
+                for (Document match : matches.get(query))
+                {
+                    System.out.println(query + " found in " + match.getFileName());
+                }
             }
 
             long duration = (System.nanoTime() - start);
