@@ -85,7 +85,7 @@ public class Document
         }
     }
 
-    public String getSerialFilename(String serialisationPath, int searchWords)
+    public String getSerialNameNoExt(String serialisationPath)
     {
         String hashedName = this.getHashedName();
 
@@ -94,19 +94,17 @@ public class Document
             return null;
         }
 
-        return serialisationPath + searchWords + "_" + hashedName + ".ser";
+        return serialisationPath + hashedName;
     }
 
-    public String getSerialDateFilename(String serialisationPath, int searchWords)
+    public String getSerialFilename(String serialisationPath)
     {
-        String hashedName = this.getHashedName();
+        return this.getSerialNameNoExt(serialisationPath) + ".serl";
+    }
 
-        if (hashedName == null)
-        {
-            return null;
-        }
-
-        return serialisationPath + searchWords + "_" + hashedName + ".date";
+    public String getSerialAttributesFilename(String serialisationPath)
+    {
+        return this.getSerialNameNoExt(serialisationPath) + ".attr";
     }
 
     public String readTerm(Scanner in, int words)

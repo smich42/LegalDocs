@@ -43,7 +43,7 @@ public class Main
 
                 for (Document match : matches.get(query))
                 {
-                    System.out.println(query + " found in " + match.getFileName());
+                    System.out.println("Search string '" + query + "' found in '" + match.getFileName() + "' (" + match.getFullPath() + ")");
                 }
             }
 

@@ -38,27 +38,36 @@ public class DocumentMatcher
     {
         ArrayList<Node> dser = null;
 
-        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
-        String dateName = dm.doc.getSerialDateFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
+        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
+        String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
         File serialFile = new File(serialName);
-        File dateFile = new File(dateName);
+        File attrsFile = new File(attrsName);
 
-        if (serialFile.exists() && dateFile.exists())
+        if (serialFile.exists() && attrsFile.exists())
         {
             try (InputStream fSer = new FileInputStream(serialName);
                  FSTObjectInput inSer = new FSTObjectInput(fSer);
-                 FileInputStream fDate = new FileInputStream(dateName);
-                 DataInputStream inDate = new DataInputStream(fDate))
+                 FileInputStream fAttrs = new FileInputStream(attrsName);
+                 DataInputStream inAttrs = new DataInputStream(fAttrs))
             {
-                if (dm.doc.getDateModified() != inDate.readLong())
+                if (dm.doc.getDateModified() != inAttrs.readLong())
                 {
+                    System.out.println("Serialised trie for '" + dm.doc.getName() + "' outdated");
+
+                    return null;
+                }
+
+                if (SEARCH_WORDS_MAX > inAttrs.readInt())
+                {
+                    System.out.println("Serialised trie for '" + dm.doc.getName() + "' too small");
+
                     return null;
                 }
 
                 dser = (ArrayList<Node>) inSer.readObject();
 
-                // System.out.println("Recovered serialised trie for '" + dm.doc.getName() + "'");
+                System.out.println("Recovered serialised trie for '" + dm.doc.getName() + "'");
             }
             catch (IOException | ClassNotFoundException e)
             {
@@ -71,8 +80,8 @@ public class DocumentMatcher
 
     public static void serialise(DocumentMatcher dm)
     {
-        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
-        String dateName = dm.doc.getSerialDateFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
+        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
+        String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
         if (serialName == null)
         {
@@ -82,13 +91,14 @@ public class DocumentMatcher
 
         try (OutputStream fSer = new FileOutputStream(serialName, false);
              FSTObjectOutput outSer = new FSTObjectOutput(fSer);
-             OutputStream fDate = new FileOutputStream(dateName, false);
-             DataOutputStream outDate = new DataOutputStream(fDate))
+             OutputStream fAttrs = new FileOutputStream(attrsName, false);
+             DataOutputStream outAttrs = new DataOutputStream(fAttrs))
         {
             outSer.writeObject(dm.nodes);
-            outDate.writeLong(dm.doc.getDateModified());
+            outAttrs.writeLong(dm.doc.getDateModified());
+            outAttrs.writeInt(SEARCH_WORDS_MAX);
 
-            // System.out.println("Serialised '" + dm.doc.getName() + "'");
+            System.out.println("Serialised '" + dm.doc.getName() + "'");
         }
         catch (IOException e)
         {
@@ -98,11 +108,11 @@ public class DocumentMatcher
 
     public static void deleteSerialised(Document doc)
     {
-        String serialName = doc.getSerialFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
-        String dateName = doc.getSerialDateFilename(SERIALISATION_PATH, SEARCH_WORDS_MAX);
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
         File serialFile = new File(serialName);
-        File dateFile = new File(dateName);
+        File attrsFile = new File(attrsName);
 
         if (serialFile.delete())
         {
@@ -113,7 +123,7 @@ public class DocumentMatcher
             System.out.println("Failed to delete serialised trie for '" + doc.getName() + "'");
         }
 
-        if (dateFile.delete())
+        if (attrsFile.delete())
         {
             System.out.println("Deleted trie date file for '" + doc.getName() + "'");
         }
