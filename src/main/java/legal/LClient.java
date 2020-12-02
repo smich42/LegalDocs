@@ -2,6 +2,8 @@ package legal;
 
 public class LClient implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     private String name;
     private String email;
     private String phone;

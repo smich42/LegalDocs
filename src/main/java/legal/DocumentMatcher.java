@@ -13,7 +13,7 @@ import java.util.Map;
 public class DocumentMatcher
 {
     static final int SEARCH_WORDS_MAX = 3;
-    static final String SERIALISATION_PATH = "C:/Users/stavr/Desktop/serial/";
+    static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/";
     ArrayList<Node> nodes;
     Document doc;
 
@@ -80,6 +80,21 @@ public class DocumentMatcher
 
     public static void serialise(DocumentMatcher dm)
     {
+        File serialPath = new File(SERIALISATION_PATH);
+
+        if (!serialPath.exists())
+        {
+            if (serialPath.mkdir())
+            {
+                System.out.println("Created directory for serialisation at '" + SERIALISATION_PATH + "'");
+            }
+            else
+            {
+                System.out.println("Failed to create directory for serialisation at '" + SERIALISATION_PATH + "'");
+                return; // Stop function if directory does not exist
+            }
+        }
+
         String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
         String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
@@ -298,6 +313,8 @@ public class DocumentMatcher
 
     private static class Node implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         // Slightly unconventional node structure;
         // Characters saved in the nodes--edges have no values
         private final Map<Character, Integer> children;

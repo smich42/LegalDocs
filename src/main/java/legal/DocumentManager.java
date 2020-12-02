@@ -20,8 +20,7 @@ public class DocumentManager
     {
         // Return immutable version of document list
         return Collections.unmodifiableList(this.docs);
-    }
-
+    } 
 
     public List<Document> searchExactly(String searchQuery)
     {

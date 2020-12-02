@@ -13,7 +13,7 @@ public class Main
     {
         DocumentManager dm = new DocumentManager();
 
-        File directory = new File("C:/Users/stavr/Desktop/files/");
+        File directory = new File("C:/Users/stavr/Downloads/files/");
 
         for (File f : Objects.requireNonNull(directory.listFiles()))
         {
