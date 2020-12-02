@@ -21,13 +21,12 @@ public class Main
         }
 
         Scanner in = new Scanner(System.in);
-        String S;
+    
+        System.out.print("> ");
+        String S = in.nextLine();
 
-        do
-        {
-            System.out.print("> ");
-
-            S = in.nextLine();
+        while (!S.isEmpty() && !S.isBlank())
+        {            
             String[] queries = S.split(" OR ");
 
             long start = System.nanoTime();
@@ -49,9 +48,10 @@ public class Main
 
             long duration = (System.nanoTime() - start);
             System.out.println("[" + duration / 1_000_000_000 + " s elapsed]");
-            System.out.println();
+
+            System.out.print("\n> ");
+            S = in.nextLine();
         }
-        while (!S.isEmpty() && !S.isBlank());
 
         in.close();
     }
