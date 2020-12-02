@@ -8,20 +8,21 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DocumentMatcher
 {
     static final int SEARCH_WORDS_MAX = 3;
     static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/";
-    ArrayList<Node> nodes;
+    List<Node> nodes;
     Document doc;
 
     public DocumentMatcher(Document doc)
     {
         this.doc = doc;
 
-        ArrayList<Node> deserialisedNodes = deserialise(this);
+        List<Node> deserialisedNodes = deserialise(this);
 
         if (deserialisedNodes == null)
         {
@@ -34,10 +35,8 @@ public class DocumentMatcher
         }
     }
 
-    public static ArrayList<Node> deserialise(DocumentMatcher dm)
+    public static List<Node> deserialise(DocumentMatcher dm)
     {
-        ArrayList<Node> dser = null;
-
         String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
         String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
@@ -65,9 +64,12 @@ public class DocumentMatcher
                     return null;
                 }
 
-                dser = (ArrayList<Node>) inSer.readObject();
+                @SuppressWarnings("unchecked")
+                List<Node> dser = (List<Node>) inSer.readObject();
 
                 System.out.println("Recovered serialised trie for '" + dm.doc.getName() + "'");
+
+                return dser;
             }
             catch (IOException | ClassNotFoundException e)
             {
@@ -75,7 +77,7 @@ public class DocumentMatcher
             }
         }
 
-        return dser;
+        return null;
     }
 
     public static void serialise(DocumentMatcher dm)
@@ -193,6 +195,11 @@ public class DocumentMatcher
     {
         term = Document.removePunctuation(term.toLowerCase());
 
+        if (term.isBlank() || term.isEmpty())
+        {
+            return false;
+        }
+
         Node cur = this.getNode(0);
 
         for (char c : term.toCharArray())
@@ -210,6 +217,11 @@ public class DocumentMatcher
 
     public boolean matches(String pattern, int maxDistance)
     {
+        if (pattern.isBlank() || pattern.isEmpty())
+        {
+            return false;
+        }
+
         if (maxDistance == 0)
         {
             return this.contains(pattern);
