@@ -1,6 +1,7 @@
 package legal;
 
 import javafx.util.Pair;
+
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -14,31 +15,32 @@ import java.util.Map;
 public class DocumentMatcher
 {
     static final int SEARCH_WORDS_MAX = 3;
-    static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/";
+    static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/matchers/";
+
     List<Node> nodes;
-    Document doc;
+
+    public DocumentMatcher()
+    {
+        this.nodes = new ArrayList<>();
+    }
 
     public DocumentMatcher(Document doc)
     {
-        this.doc = doc;
-
-        List<Node> deserialisedNodes = deserialise(this);
+        List<Node> deserialisedNodes = deserialiseTrieOf(doc);
 
         if (deserialisedNodes == null)
         {
-            this.buildTrie();
-            serialise(this);
+            serialiseTrieOf(doc);
+            deserialisedNodes = deserialiseTrieOf(doc);
         }
-        else
-        {
-            this.nodes = deserialisedNodes;
-        }
+
+        this.nodes = deserialisedNodes;
     }
 
-    public static List<Node> deserialise(DocumentMatcher dm)
+    public static List<Node> deserialiseTrieOf(Document doc)
     {
-        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
-        String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);
@@ -50,16 +52,16 @@ public class DocumentMatcher
                  FileInputStream fAttrs = new FileInputStream(attrsName);
                  DataInputStream inAttrs = new DataInputStream(fAttrs))
             {
-                if (dm.doc.getDateModified() != inAttrs.readLong())
+                if (doc.getDateModified() != inAttrs.readLong())
                 {
-                    System.out.println("Serialised trie for '" + dm.doc.getName() + "' outdated");
+                    System.out.println("Serialised trie for '" + doc.getName() + "' outdated");
 
                     return null;
                 }
 
                 if (SEARCH_WORDS_MAX > inAttrs.readInt())
                 {
-                    System.out.println("Serialised trie for '" + dm.doc.getName() + "' too small");
+                    System.out.println("Serialised trie for '" + doc.getName() + "' too small");
 
                     return null;
                 }
@@ -67,7 +69,7 @@ public class DocumentMatcher
                 @SuppressWarnings("unchecked")
                 List<Node> dser = (List<Node>) inSer.readObject();
 
-                System.out.println("Recovered serialised trie for '" + dm.doc.getName() + "'");
+                System.out.println("Recovered serialised trie for '" + doc.getName() + "'");
 
                 return dser;
             }
@@ -80,13 +82,13 @@ public class DocumentMatcher
         return null;
     }
 
-    public static void serialise(DocumentMatcher dm)
+    public static void serialiseTrieOf(Document doc)
     {
         File serialPath = new File(SERIALISATION_PATH);
 
         if (!serialPath.exists())
         {
-            if (serialPath.mkdir())
+            if (serialPath.mkdirs())
             {
                 System.out.println("Created directory for serialisation at '" + SERIALISATION_PATH + "'");
             }
@@ -97,12 +99,12 @@ public class DocumentMatcher
             }
         }
 
-        String serialName = dm.doc.getSerialFilename(SERIALISATION_PATH);
-        String attrsName = dm.doc.getSerialAttributesFilename(SERIALISATION_PATH);
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
 
         if (serialName == null)
         {
-            System.out.println("Could not generate filename to serialise " + dm.doc.getName());
+            System.out.println("Could not generate filename to serialise " + doc.getName());
             return;
         }
 
@@ -111,11 +113,14 @@ public class DocumentMatcher
              OutputStream fAttrs = new FileOutputStream(attrsName, false);
              DataOutputStream outAttrs = new DataOutputStream(fAttrs))
         {
-            outSer.writeObject(dm.nodes);
-            outAttrs.writeLong(dm.doc.getDateModified());
+            DocumentMatcher toSerialise = new DocumentMatcher();
+            toSerialise.buildTrie(doc);
+
+            outSer.writeObject(toSerialise.nodes);
+            outAttrs.writeLong(doc.getDateModified());
             outAttrs.writeInt(SEARCH_WORDS_MAX);
 
-            System.out.println("Serialised '" + dm.doc.getName() + "'");
+            System.out.println("Serialised '" + doc.getName() + "'");
         }
         catch (IOException e)
         {
@@ -123,7 +128,7 @@ public class DocumentMatcher
         }
     }
 
-    public static void deleteSerialised(Document doc)
+    public static void deleteSerialisedTrie(Document doc)
     {
         String serialName = doc.getSerialFilename(SERIALISATION_PATH);
         String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
@@ -150,7 +155,7 @@ public class DocumentMatcher
         }
     }
 
-    public void buildTrie()
+    public void buildTrie(Document doc)
     {
         this.nodes = new ArrayList<>();
 
@@ -161,7 +166,7 @@ public class DocumentMatcher
         {
             for (int offset = 0; offset < wordsPerTerm; ++offset)
             {
-                for (String term : this.doc.listTerms(wordsPerTerm, offset))
+                for (String term : doc.listTerms(wordsPerTerm, offset))
                 {
                     this.insert(term);
                 }
@@ -317,12 +322,6 @@ public class DocumentMatcher
 
         cur.addTerm(term);
     }
-
-    public Document getDocument()
-    {
-        return this.doc;
-    }
-
     private static class Node implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
