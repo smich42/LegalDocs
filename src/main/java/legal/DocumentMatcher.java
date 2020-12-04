@@ -39,8 +39,8 @@ public class DocumentMatcher
 
     public static List<Node> deserialiseTrieOf(Document doc)
     {
-        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
-        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);
@@ -95,18 +95,12 @@ public class DocumentMatcher
             else
             {
                 System.out.println("Failed to create directory for serialisation at '" + SERIALISATION_PATH + "'");
-                return; // Stop function if directory does not exist
+                return; // Stop method execution if directory does not exist
             }
         }
 
-        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
-        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
-
-        if (serialName == null)
-        {
-            System.out.println("Could not generate filename to serialise " + doc.getName());
-            return;
-        }
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         try (OutputStream fSer = new FileOutputStream(serialName, false);
              FSTObjectOutput outSer = new FSTObjectOutput(fSer);
@@ -130,8 +124,8 @@ public class DocumentMatcher
 
     public static void deleteSerialisedTrie(Document doc)
     {
-        String serialName = doc.getSerialFilename(SERIALISATION_PATH);
-        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH);
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);

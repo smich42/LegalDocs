@@ -10,8 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Document
+public class Document implements java.io.Serializable
 {
+    private static final long serialVersionUID = 5L;
+
     private final File file;
     private String name;
     private LCase lCase;

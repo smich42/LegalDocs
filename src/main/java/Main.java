@@ -13,15 +13,15 @@ public class Main
     {
         DocumentManager dm = new DocumentManager();
 
-        File directory = new File("C:/Users/stavr/Downloads/files/");
+        // File directory = new File("C:/Users/stavr/Downloads/files/");
 
-        for (File f : Objects.requireNonNull(directory.listFiles()))
-        {
-            dm.addDocument(new Document(f));
-        }
+        // for (File f : Objects.requireNonNull(directory.listFiles()))
+        // {
+        //     dm.addDocument(new Document(f));
+        // }
 
         Scanner in = new Scanner(System.in);
-    
+
         System.out.print("> ");
         String S = in.nextLine();
 
@@ -54,5 +54,6 @@ public class Main
         }
 
         in.close();
+        dm.close();
     }
 }
