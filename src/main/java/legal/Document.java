@@ -66,6 +66,11 @@ public class Document implements java.io.Serializable
         return replacePunctuation(S, "");
     }
 
+    public boolean delete()
+    {
+        return this.file.delete();
+    }
+
     public String getHashedName()
     {
         String toHash = this.getFullPath();

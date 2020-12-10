@@ -17,10 +17,18 @@ public class DocumentManager
     static final String SERIALISATION_NAME = "documents";
 
     private List<Document> docs;
+    
+    private List<LCase> lCases;
+    private List<LClient> lClients;
+    private List<LCourt> lCourts;
 
     public DocumentManager()
     {
-        List<Document> deserialisedDocs = this.deserialiseDocuments();
+        this.lCases = new ArrayList<>();
+        this.lClients = new ArrayList<>();
+        this.lCourts = new ArrayList<>();
+
+        List<Document> deserialisedDocs = null; // this.deserialiseDocuments();
 
         if (deserialisedDocs != null)
         {
@@ -30,27 +38,6 @@ public class DocumentManager
         {
             this.docs = new ArrayList<>();
         }
-    }
-
-    public void close()
-    {
-        this.serialiseDocuments();
-    }
-
-    public void addDocument(Document doc)
-    {
-        this.docs.add(doc);
-    }
-
-    public List<Document> listDocuments()
-    {
-        // Return immutable version of document list
-        return Collections.unmodifiableList(this.docs);
-    } 
-
-    public String getSerialFilename()
-    {
-        return SERIALISATION_PATH + SERIALISATION_NAME + ".serl_DOCS";
     }
 
     public List<Document> deserialiseDocuments()
@@ -187,5 +174,142 @@ public class DocumentManager
 
         // Return immutable version of the list of matching documents
         return results;
+    }
+
+    public List<Document> sortByCategory(Class<?> category)
+    {
+        List<Document> sorted = new ArrayList<>(this.docs);
+
+        if (category != LCase.class &&
+            category != LClient.class &&
+            category != LCourt.class &&
+            category != Date.class)
+        {
+            throw new IllegalArgumentException("'" + category.toString() + "': no such LCategory");
+        }
+
+        quicksort(sorted, 0, sorted.size() - 1, category);
+
+        return sorted;
+    }
+
+    private void quicksort(List<Document> toSort, int l, int r, Class<?> category)
+    {
+        if (l < r)
+        {
+            int split = partition(toSort, l, r, category);
+
+            quicksort(toSort, l, split - 1, category);
+            quicksort(toSort, split + 1, r, category);
+        }
+    }
+
+    private int partition(List<Document> toSort, int l, int r, Class<?> category)
+    {
+        Document curDoc = toSort.get(r);
+        int index = l - 1;
+
+        for (int i = l; i < r; ++i)
+        {
+            Document indexDoc = toSort.get(i);
+
+            LCase curCase = curDoc.getCase();
+            LCase indexCase = indexDoc.getCase();
+
+            if (category == Date.class)
+            {
+                Date curDate = curCase.getDateAssigned();
+                Date indexDate = indexCase.getDateAssigned();
+
+                if (indexDate.compareTo(curDate) < 0  ||
+                    (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                {
+                    index += 1;
+                    Collections.swap(toSort, index, i);
+                }
+            }
+            else
+            {
+                String curName = "";
+                String indexName = "";
+
+                if (category == LCase.class)
+                {
+                    curName = curCase.getName();
+                    indexName = indexCase.getName();
+                }
+                else if (category == LClient.class)
+                {
+                    curName = curCase.getClient().getName();
+                    indexName = indexCase.getClient().getName();
+                }
+                else if (category == LCourt.class)
+                {
+                    curName = curCase.getCourt().getName();
+                    indexName = indexCase.getCourt().getName();
+                }
+
+                if (indexName.compareTo(curName) < 0 ||
+                    (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                {
+                    index += 1;
+                    Collections.swap(toSort, index, i);
+                }
+            }
+        }
+        
+        Collections.swap(toSort, index + 1, r);
+
+        return index + 1;
+    }
+
+    public void close()
+    {
+        this.serialiseDocuments();
+    }
+
+    public void addDocument(Document doc)
+    {
+        this.docs.add(doc);
+    }
+
+    public List<Document> listDocuments()
+    {
+        return Collections.unmodifiableList(this.docs);
+    } 
+
+    public void addCase(LCase lCase)
+    {
+        this.lCases.add(lCase);
+    }
+
+    public List<LCase> listCases()
+    {
+        return Collections.unmodifiableList(this.lCases);
+    } 
+
+    public void addClient(LClient lClient)
+    {
+        this.lClients.add(lClient);
+    }
+
+    public List<LClient> listClients()
+    {
+        return Collections.unmodifiableList(this.lClients);
+    } 
+
+    public void addCourt(LCourt lCourt)
+    {
+        this.lCourts.add(lCourt);
+    }
+
+    public List<LCourt> listCourts()
+    {
+        return Collections.unmodifiableList(this.lCourts);
+    } 
+
+    public String getSerialFilename()
+    {
+        return SERIALISATION_PATH + SERIALISATION_NAME + ".serl_DOCS";
     }
 }

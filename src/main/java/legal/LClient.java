@@ -35,6 +35,7 @@ public class LClient implements java.io.Serializable
         return this.email;
     }
 
+    // TODO: email validity check
     public void setEmail(String email)
     {
         this.email = email;
