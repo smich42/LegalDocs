@@ -17,22 +17,30 @@ public class DocumentManager
     static final String SERIALISATION_NAME = "documents";
 
     private List<Document> docs;
-    
-    private List<LCase> lCases;
-    private List<LClient> lClients;
-    private List<LCourt> lCourts;
+    private Set<String> docNames;
+    private Set<File> docFiles;
+
+    private Map<String, LCase> lCases;
+    private Map<String, LClient> lClients;
+    private Map<String, LCourt> lCourts;
 
     public DocumentManager()
     {
-        this.lCases = new ArrayList<>();
-        this.lClients = new ArrayList<>();
-        this.lCourts = new ArrayList<>();
+        this.docNames = new HashSet<>();
+        this.docFiles = new HashSet<>();
 
-        List<Document> deserialisedDocs = null; // this.deserialiseDocuments();
+        this.lCases = new LinkedHashMap<>();
+        this.lClients = new LinkedHashMap<>();
+        this.lCourts = new LinkedHashMap<>();
+
+        List<Document> deserialisedDocs = this.deserialiseDocuments();
 
         if (deserialisedDocs != null)
         {
-            this.docs = deserialisedDocs;
+            for (Document doc : deserialisedDocs)
+            {
+                this.addDocument(doc);
+            }
         }
         else
         {
@@ -270,7 +278,25 @@ public class DocumentManager
 
     public void addDocument(Document doc)
     {
-        this.docs.add(doc);
+        if (this.docs == null)
+        {
+            this.docs = new ArrayList<>();
+        }
+
+        if (this.canAddDoc(doc))
+        {
+            this.docs.add(doc);
+
+            this.docFiles.add(doc.getFile());
+            this.docNames.add(doc.getName());
+
+            this.addCase(doc.getCase());
+        }
+    }
+
+    public boolean canAddDoc(Document doc)
+    {
+        return !this.docFiles.contains(doc.getFile()) && !this.docNames.contains(doc.getName());
     }
 
     public List<Document> listDocuments()
@@ -280,32 +306,44 @@ public class DocumentManager
 
     public void addCase(LCase lCase)
     {
-        this.lCases.add(lCase);
+        if (!this.lCases.containsKey(lCase.getName()))
+        {
+            this.lCases.put(lCase.getName(), lCase);
+
+            this.addClient(lCase.getClient());
+            this.addCourt(lCase.getCourt());
+        }
     }
 
     public List<LCase> listCases()
     {
-        return Collections.unmodifiableList(this.lCases);
+        return new ArrayList<>(this.lCases.values());
     } 
 
     public void addClient(LClient lClient)
     {
-        this.lClients.add(lClient);
+        if (!this.lClients.containsKey(lClient.getName()))
+        {
+            this.lClients.put(lClient.getName(), lClient);
+        }
     }
 
     public List<LClient> listClients()
     {
-        return Collections.unmodifiableList(this.lClients);
-    } 
+        return new ArrayList<>(this.lClients.values());
+    }
 
     public void addCourt(LCourt lCourt)
     {
-        this.lCourts.add(lCourt);
+        if (!this.lCourts.containsKey(lCourt.getName()))
+        {
+            this.lCourts.put(lCourt.getName(), lCourt);
+        }
     }
 
     public List<LCourt> listCourts()
     {
-        return Collections.unmodifiableList(this.lCourts);
+        return new ArrayList<>(this.lCourts.values());
     } 
 
     public String getSerialFilename()

@@ -12,53 +12,53 @@ public class Main
     {
         DocumentManager dm = new DocumentManager();
 
-        LCourt courtD = new LCourt("CourtD", "0123456789");
-        LCourt courtA = new LCourt("CourtA", "0123456789");
-        LCourt courtB = new LCourt("CourtB", "0123456789");
-        LCourt courtC = new LCourt("CourtC", "0123456789");
+        // LCourt courtD = new LCourt("CourtD", "0123456789");
+        // LCourt courtA = new LCourt("CourtA", "0123456789");
+        // LCourt courtB = new LCourt("CourtB", "0123456789");
+        // LCourt courtC = new LCourt("CourtC", "0123456789");
 
-        dm.addCourt(courtA);
-        dm.addCourt(courtB);
-        dm.addCourt(courtC);
-        dm.addCourt(courtD);
+        // dm.addCourt(courtA);
+        // dm.addCourt(courtB);
+        // dm.addCourt(courtC);
+        // dm.addCourt(courtD);
 
-        LClient clientB = new LClient("ClientB", "client@client.client", "0123456789");
-        LClient clientD = new LClient("ClientD", "client@client.client", "0123456789");
-        LClient clientC = new LClient("ClientC", "client@client.client", "0123456789");
-        LClient clientA = new LClient("ClientA", "client@client.client", "0123456789");
+        // LClient clientB = new LClient("ClientB", "client@client.client", "0123456789");
+        // LClient clientD = new LClient("ClientD", "client@client.client", "0123456789");
+        // LClient clientC = new LClient("ClientC", "client@client.client", "0123456789");
+        // LClient clientA = new LClient("ClientA", "client@client.client", "0123456789");
 
-        dm.addClient(clientA);
-        dm.addClient(clientB);
-        dm.addClient(clientC);
-        dm.addClient(clientD);
+        // dm.addClient(clientA);
+        // dm.addClient(clientB);
+        // dm.addClient(clientC);
+        // dm.addClient(clientD);
 
-        LCase caseC = new LCase("CaseC", courtC, clientC, new Date(3L));
-        LCase caseD = new LCase("CaseD", courtD, clientD, new Date(4L));
-        LCase caseA = new LCase("CaseA", courtA, clientA, new Date(1L));
-        LCase caseB = new LCase("CaseB", courtB, clientB, new Date(2L));
+        // LCase caseC = new LCase("CaseC", courtC, clientC, new Date(3L));
+        // LCase caseD = new LCase("CaseD", courtD, clientD, new Date(4L));
+        // LCase caseA = new LCase("CaseA", courtA, clientA, new Date(1L));
+        // LCase caseB = new LCase("CaseB", courtB, clientB, new Date(2L));
 
-        dm.addCase(caseA);
-        dm.addCase(caseB);
-        dm.addCase(caseC);
-        dm.addCase(caseD);
+        // dm.addCase(caseA);
+        // dm.addCase(caseB);
+        // dm.addCase(caseC);
+        // dm.addCase(caseD);
 
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocB2", caseB));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocB1", caseB));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocB3", caseB));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocB2", caseB));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Ancient history.txt"), "DocB1", caseB));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Anti-Americanism.txt"), "DocB3", caseB));
 
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocD1", caseD));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocD3", caseD));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocD2", caseD));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Ashoka.txt"), "DocD1", caseD));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Atlantic slave trade.txt"), "DocD3", caseD));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Black Sabbath.txt"), "DocD2", caseD));
 
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocA3", caseA));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocA1", caseA));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocA2", caseA));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Azerbaijan.txt"), "DocA3", caseA));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Bahrain.txt"), "DocA1", caseA));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Battle of Belgium.txt"), "DocA2", caseA));
 
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocC1", caseC));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocC3", caseC));
-        dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Amsterdam.txt"), "DocC2", caseC));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Berlin.txt"), "DocC1", caseC));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Bernie Sanders.txt"), "DocC3", caseC));
+        // dm.addDocument(new Document(new File("C:/Users/stavr/Downloads/files/Black Lives Matter.txt"), "DocC2", caseC));
 
-        for (Document doc : dm.sortByCategory(Date.class))
+        for (Document doc : dm.sortByCategory(LCase.class))
         {
             System.out.println(doc.getName());
         }

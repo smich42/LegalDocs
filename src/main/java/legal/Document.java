@@ -71,6 +71,11 @@ public class Document implements java.io.Serializable
         return this.file.delete();
     }
 
+    public File getFile()
+    {
+        return this.file;
+    }
+
     public String getHashedName()
     {
         String toHash = this.getFullPath();
