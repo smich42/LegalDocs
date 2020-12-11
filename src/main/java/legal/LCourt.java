@@ -9,13 +9,13 @@ public class LCourt implements java.io.Serializable
 
     public LCourt(String name)
     {
-        this(name, "");
+        this.setName(name);
     }
 
-    public LCourt(String name, String address)
+    public LCourt(String name, String street, int number, String city)
     {
         this.setName(name);
-        this.setAddress(address);
+        this.setAddress(street, number, city);
     }
 
     public String getName()
@@ -33,8 +33,8 @@ public class LCourt implements java.io.Serializable
         return this.address;
     }
 
-    public void setAddress(String address)
+    public void setAddress(String street, int number, String city)
     {
-        this.address = address;
+        this.address = street + Integer.toString(number) + city;
     }
 }

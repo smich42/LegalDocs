@@ -1,4 +1,4 @@
-package legal;
+package document;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+
+import legal.*;
 
 public class Document implements java.io.Serializable
 {

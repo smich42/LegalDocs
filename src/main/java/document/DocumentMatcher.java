@@ -1,4 +1,4 @@
-package legal;
+package document;
 
 import javafx.util.Pair;
 

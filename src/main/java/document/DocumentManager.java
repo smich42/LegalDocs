@@ -1,4 +1,4 @@
-package legal;
+package document;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,8 @@ import java.util.*;
 
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+
+import legal.*;
 
 public class DocumentManager
 {
@@ -111,6 +113,11 @@ public class DocumentManager
 
     public List<Document> sortByCategory(Class<?> category)
     {
+        if (this.docs == null || this.docs.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
         List<Document> sorted = new ArrayList<>(this.docs);
 
         if (category != LCase.class && category != LClient.class && category != LCourt.class && category != Date.class)
@@ -313,8 +320,7 @@ public class DocumentManager
 
         String serialName = this.getSerialFilename();
 
-        try (OutputStream fSer = new FileOutputStream(serialName, false);
-                FSTObjectOutput outSer = new FSTObjectOutput(fSer))
+        try (OutputStream fSer = new FileOutputStream(serialName, false); FSTObjectOutput outSer = new FSTObjectOutput(fSer))
         {
             outSer.writeObject(this.docs);
 
