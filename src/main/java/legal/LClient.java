@@ -12,7 +12,7 @@ public class LClient implements java.io.Serializable
 
     public LClient(String name)
     {
-        this(name, "", "");
+        this.setName(name);
     }
 
     public LClient(String name, String email, String phone)
@@ -63,6 +63,33 @@ public class LClient implements java.io.Serializable
 
     public void setPhone(String phone)
     {
-        this.phone = phone;
+        if (validatePhone(phone))
+        {
+            this.phone = phone;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid phone number '" + phone + "'");
+        }
+    }
+
+    public boolean validatePhone(String phone)
+    {
+        char[] phoneChars = phone.toCharArray();
+
+        if (phoneChars.length != 10)
+        {
+            return false;
+        }
+
+        for (char c : phoneChars)
+        {
+            if (!Character.isDigit(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
