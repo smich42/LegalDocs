@@ -1,5 +1,7 @@
 package legal;
 
+import org.apache.commons.validator.routines.EmailValidator;
+
 public class LClient implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
@@ -35,10 +37,23 @@ public class LClient implements java.io.Serializable
         return this.email;
     }
 
-    // TODO: email validity check
     public void setEmail(String email)
     {
-        this.email = email;
+        if (validateEmail(email))
+        {
+            this.email = email;
+        }
+        else
+        {
+            throw new IllegalArgumentException("Invalid email address '" + email + "'");
+        }
+    }
+
+    public boolean validateEmail(String email)
+    {
+        EmailValidator validator = EmailValidator.getInstance();
+
+        return validator.isValid(email);
     }
 
     public String getPhone()
