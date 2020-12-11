@@ -48,81 +48,6 @@ public class DocumentManager
         }
     }
 
-    public List<Document> deserialiseDocuments()
-    {
-        String serialName = this.getSerialFilename();
-
-        File serialFile = new File(serialName);
-
-        if (serialFile.exists())
-        {
-            try (InputStream fSer = new FileInputStream(serialName);
-                 FSTObjectInput inSer = new FSTObjectInput(fSer))
-            {
-                @SuppressWarnings("unchecked")
-                List<Document> dser = (List<Document>) inSer.readObject();
-
-                System.out.println("Recovered serialised documents");
-
-                return dser;
-            }
-            catch (IOException | ClassNotFoundException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
-    }
-
-    public void serialiseDocuments()
-    {
-        File serialPath = new File(SERIALISATION_PATH);
-
-        if (!serialPath.exists())
-        {
-            if (serialPath.mkdirs())
-            {
-                System.out.println("Created directory for serialisation at '" + SERIALISATION_PATH + "'");
-            }
-            else
-            {
-                System.out.println("Failed to create directory for serialisation at '" + SERIALISATION_PATH + "'");
-                return; // Stop method execution if directory does not exist
-            }
-        }
-
-        String serialName = this.getSerialFilename();
-
-        try (OutputStream fSer = new FileOutputStream(serialName, false);
-             FSTObjectOutput outSer = new FSTObjectOutput(fSer))
-        {
-            outSer.writeObject(this.docs);
-
-            System.out.println("Serialised documents");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void deleteSerialisedTrie()
-    {
-        String serialName = this.getSerialFilename();
-
-        File serialFile = new File(serialName);
-        
-        if (serialFile.delete())
-        {
-            System.out.println("Deleted serialised documents");
-        }
-        else
-        {
-            System.out.println("Failed to delete serialised documents");
-        }
-    }
-
     public List<Document> searchExactly(String searchQuery)
     {
         return this.search(searchQuery, 0);
@@ -188,10 +113,7 @@ public class DocumentManager
     {
         List<Document> sorted = new ArrayList<>(this.docs);
 
-        if (category != LCase.class &&
-            category != LClient.class &&
-            category != LCourt.class &&
-            category != Date.class)
+        if (category != LCase.class && category != LClient.class && category != LCourt.class && category != Date.class)
         {
             throw new IllegalArgumentException("'" + category.toString() + "': no such LCategory");
         }
@@ -229,8 +151,8 @@ public class DocumentManager
                 Date curDate = curCase.getDateAssigned();
                 Date indexDate = indexCase.getDateAssigned();
 
-                if (indexDate.compareTo(curDate) < 0  ||
-                    (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                if (indexDate.compareTo(curDate) < 0
+                        || (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1;
                     Collections.swap(toSort, index, i);
@@ -257,15 +179,15 @@ public class DocumentManager
                     indexName = indexCase.getCourt().getName();
                 }
 
-                if (indexName.compareTo(curName) < 0 ||
-                    (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                if (indexName.compareTo(curName) < 0
+                        || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1;
                     Collections.swap(toSort, index, i);
                 }
             }
         }
-        
+
         Collections.swap(toSort, index + 1, r);
 
         return index + 1;
@@ -302,7 +224,7 @@ public class DocumentManager
     public List<Document> listDocuments()
     {
         return Collections.unmodifiableList(this.docs);
-    } 
+    }
 
     public void addCase(LCase lCase)
     {
@@ -318,7 +240,7 @@ public class DocumentManager
     public List<LCase> listCases()
     {
         return new ArrayList<>(this.lCases.values());
-    } 
+    }
 
     public void addClient(LClient lClient)
     {
@@ -344,9 +266,83 @@ public class DocumentManager
     public List<LCourt> listCourts()
     {
         return new ArrayList<>(this.lCourts.values());
-    } 
+    }
 
-    public String getSerialFilename()
+    private List<Document> deserialiseDocuments()
+    {
+        String serialName = this.getSerialFilename();
+
+        File serialFile = new File(serialName);
+
+        if (serialFile.exists())
+        {
+            try (InputStream fSer = new FileInputStream(serialName); FSTObjectInput inSer = new FSTObjectInput(fSer))
+            {
+                @SuppressWarnings("unchecked")
+                List<Document> dser = (List<Document>) inSer.readObject();
+
+                System.out.println("Recovered serialised documents");
+
+                return dser;
+            }
+            catch (IOException | ClassNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    private void serialiseDocuments()
+    {
+        File serialPath = new File(SERIALISATION_PATH);
+
+        if (!serialPath.exists())
+        {
+            if (serialPath.mkdirs())
+            {
+                System.out.println("Created directory for serialisation at '" + SERIALISATION_PATH + "'");
+            }
+            else
+            {
+                System.out.println("Failed to create directory for serialisation at '" + SERIALISATION_PATH + "'");
+                return; // Stop method execution if directory does not exist
+            }
+        }
+
+        String serialName = this.getSerialFilename();
+
+        try (OutputStream fSer = new FileOutputStream(serialName, false);
+                FSTObjectOutput outSer = new FSTObjectOutput(fSer))
+        {
+            outSer.writeObject(this.docs);
+
+            System.out.println("Serialised documents");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteSerialisedTrie()
+    {
+        String serialName = this.getSerialFilename();
+
+        File serialFile = new File(serialName);
+
+        if (serialFile.delete())
+        {
+            System.out.println("Deleted serialised documents");
+        }
+        else
+        {
+            System.out.println("Failed to delete serialised documents");
+        }
+    }
+
+    private String getSerialFilename()
     {
         return SERIALISATION_PATH + SERIALISATION_NAME + ".serl_DOCS";
     }

@@ -48,9 +48,9 @@ public class DocumentMatcher
         if (serialFile.exists() && attrsFile.exists())
         {
             try (InputStream fSer = new FileInputStream(serialName);
-                 FSTObjectInput inSer = new FSTObjectInput(fSer);
-                 FileInputStream fAttrs = new FileInputStream(attrsName);
-                 DataInputStream inAttrs = new DataInputStream(fAttrs))
+                    FSTObjectInput inSer = new FSTObjectInput(fSer);
+                    FileInputStream fAttrs = new FileInputStream(attrsName);
+                    DataInputStream inAttrs = new DataInputStream(fAttrs))
             {
                 if (doc.getDateModified() != inAttrs.readLong())
                 {
@@ -103,9 +103,9 @@ public class DocumentMatcher
         String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         try (OutputStream fSer = new FileOutputStream(serialName, false);
-             FSTObjectOutput outSer = new FSTObjectOutput(fSer);
-             OutputStream fAttrs = new FileOutputStream(attrsName, false);
-             DataOutputStream outAttrs = new DataOutputStream(fAttrs))
+                FSTObjectOutput outSer = new FSTObjectOutput(fSer);
+                OutputStream fAttrs = new FileOutputStream(attrsName, false);
+                DataOutputStream outAttrs = new DataOutputStream(fAttrs))
         {
             DocumentMatcher toSerialise = new DocumentMatcher();
             toSerialise.buildTrie(doc);
@@ -259,12 +259,9 @@ public class DocumentMatcher
                 // 0 otherwise
                 int subCost = (currentPos != patternPos) ? 1 : 0;
 
-                curRow[i] = Math.min(
-                        Math.min(
-                                prevRow[i] + 1, // Deletion
-                                curRow[i - 1] + 1 // Insertion
-                        ),
-                        prevRow[i - 1] + subCost // Substitution
+                curRow[i] = Math.min(Math.min(prevRow[i] + 1, // Deletion
+                        curRow[i - 1] + 1 // Insertion
+                ), prevRow[i - 1] + subCost // Substitution
                 );
             }
         }
@@ -273,9 +270,8 @@ public class DocumentMatcher
 
         if (curNode.isTerm())
         {
-            Pair<String, Integer> result = new Pair<>(
-                    curNode.getTerm(),
-                    curRow[curRow.length - 1] // Levenshtein distance
+            Pair<String, Integer> result = new Pair<>(curNode.getTerm(), curRow[curRow.length - 1] // Levenshtein
+                                                                                                   // distance
             );
 
             results.add(result);
@@ -316,6 +312,7 @@ public class DocumentMatcher
 
         cur.addTerm(term);
     }
+
     private static class Node implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;

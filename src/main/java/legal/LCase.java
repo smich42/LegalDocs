@@ -2,7 +2,7 @@ package legal;
 
 import java.util.Date;
 
-public class LCase implements java.io.Serializable 
+public class LCase implements java.io.Serializable
 {
     private static final long serialVersionUID = 2L;
 

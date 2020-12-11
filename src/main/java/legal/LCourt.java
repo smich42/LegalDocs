@@ -1,6 +1,6 @@
 package legal;
 
-public class LCourt implements java.io.Serializable 
+public class LCourt implements java.io.Serializable
 {
     public static final long serialVersionUID = 4L;
 
