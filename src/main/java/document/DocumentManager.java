@@ -28,6 +28,8 @@ public class DocumentManager
 
     public DocumentManager()
     {
+        this.docs = new ArrayList<>();
+
         this.docNames = new HashSet<>();
         this.docFiles = new HashSet<>();
 
@@ -43,10 +45,6 @@ public class DocumentManager
             {
                 this.addDocument(doc);
             }
-        }
-        else
-        {
-            this.docs = new ArrayList<>();
         }
     }
 
@@ -158,8 +156,7 @@ public class DocumentManager
                 Date curDate = curCase.getDateAssigned();
                 Date indexDate = indexCase.getDateAssigned();
 
-                if (indexDate.compareTo(curDate) < 0
-                        || (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                if (indexDate.compareTo(curDate) < 0 || (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1;
                     Collections.swap(toSort, index, i);
@@ -186,8 +183,7 @@ public class DocumentManager
                     indexName = indexCase.getCourt().getName();
                 }
 
-                if (indexName.compareTo(curName) < 0
-                        || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                if (indexName.compareTo(curName) < 0 || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1;
                     Collections.swap(toSort, index, i);
@@ -225,12 +221,22 @@ public class DocumentManager
 
     public boolean canAddDoc(Document doc)
     {
+        if (!doc.getFile().exists())
+        {
+            return false;
+        }
+
         return !this.docFiles.contains(doc.getFile()) && !this.docNames.contains(doc.getName());
     }
 
     public List<Document> listDocuments()
     {
         return Collections.unmodifiableList(this.docs);
+    }
+
+    public boolean hasDocuments()
+    {
+        return (this.docs != null) && (!this.docs.isEmpty());
     }
 
     public void addCase(LCase lCase)
@@ -332,7 +338,7 @@ public class DocumentManager
         }
     }
 
-    private void deleteSerialisedTrie()
+    public void deleteSerialisedDocuments()
     {
         String serialName = this.getSerialFilename();
 
