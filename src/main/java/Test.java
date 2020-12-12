@@ -2,15 +2,16 @@ import java.io.File;
 import java.sql.Date;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Scanner;
+import java.util.SplittableRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 import document.*;
 import legal.*;
 
 public final class Test
 {
-    private static final Random rand = new Random();
+    private static final SplittableRandom rand = new SplittableRandom();
 
     private Test()
     {
@@ -56,20 +57,20 @@ public final class Test
 
     public static void addWikiDocuments(DocumentManager dm)
     {
-        LCourt courtA = new LCourt("CourtA");
-        LCourt courtB = new LCourt("CourtB");
-        LCourt courtC = new LCourt("CourtC");
-        LCourt courtD = new LCourt("CourtD");
+        LCourt courtA = new LCourt("Court A");
+        LCourt courtB = new LCourt("Court B");
+        LCourt courtC = new LCourt("Court C");
+        LCourt courtD = new LCourt("Court D");
 
-        LClient clientA = new LClient("ClientA", "clientA@client.com", "0123456789");
-        LClient clientB = new LClient("ClientB", "clientB@client.com", "0123456789");
-        LClient clientC = new LClient("ClientC", "clientC@client.com", "0123456789");
-        LClient clientD = new LClient("ClientD", "clientD@client.com", "0123456789");
+        LClient clientA = new LClient("Client A", "clientA@client.com", "0123456789");
+        LClient clientB = new LClient("Client B", "clientB@client.com", "0123456789");
+        LClient clientC = new LClient("Client C", "clientC@client.com", "0123456789");
+        LClient clientD = new LClient("Client D", "clientD@client.com", "0123456789");
 
-        LCase caseA = new LCase("CaseA", courtA, clientA, new Date(1L));
-        LCase caseB = new LCase("CaseB", courtB, clientB, new Date(2L));
-        LCase caseC = new LCase("CaseC", courtC, clientC, new Date(3L));
-        LCase caseD = new LCase("CaseD", courtD, clientD, new Date(4L));
+        LCase caseA = new LCase("Case A", courtA, clientA, new Date(TimeUnit.SECONDS.toMillis(rand.nextLong(1_600_000_000L))));
+        LCase caseB = new LCase("Case B", courtB, clientB, new Date(TimeUnit.SECONDS.toMillis(rand.nextLong(1_600_000_000L))));
+        LCase caseC = new LCase("Case C", courtC, clientC, new Date(TimeUnit.SECONDS.toMillis(rand.nextLong(1_600_000_000L))));
+        LCase caseD = new LCase("Case D", courtD, clientD, new Date(TimeUnit.SECONDS.toMillis(rand.nextLong(1_600_000_000L))));
 
         LCase[] lCases = {caseA, caseB, caseC, caseD};
 

@@ -2,7 +2,7 @@ package legal;
 
 public class LCourt implements java.io.Serializable
 {
-    public static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 18530754483472595L;
 
     private String name;
     private String address;
@@ -36,5 +36,11 @@ public class LCourt implements java.io.Serializable
     public void setAddress(String street, int number, String city)
     {
         this.address = street + Integer.toString(number) + city;
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.name;
     }
 }

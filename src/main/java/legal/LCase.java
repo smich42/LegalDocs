@@ -1,5 +1,6 @@
 package legal;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class LCase implements java.io.Serializable
@@ -56,6 +57,21 @@ public class LCase implements java.io.Serializable
 
     public void setDateAssigned(Date dateAssigned)
     {
-        this.dateAssigned = dateAssigned;
+        this.dateAssigned = new Date(dateAssigned.getTime())
+        {
+            private static final long serialVersionUID = 2753455820327491277L;
+
+            @Override
+            public String toString()
+            {
+                return new SimpleDateFormat("dd/MM/yyyy hh:mm").format(this);
+            }
+        };
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.name;
     }
 }

@@ -3,8 +3,9 @@
 <?import javafx.scene.control.Menu ?>
 <?import javafx.scene.control.MenuBar ?>
 <?import javafx.scene.control.MenuItem ?>
-<?import javafx.scene.control.ScrollPane ?>
 <?import javafx.scene.control.SeparatorMenuItem ?>
+<?import javafx.scene.control.TableColumn ?>
+<?import javafx.scene.control.TableView ?>
 <?import javafx.scene.layout.AnchorPane ?>
 <?import javafx.scene.layout.VBox ?>
 
@@ -51,15 +52,15 @@
     </MenuBar>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
-        <ScrollPane id="FileScrollPane" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-          <content>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="-1.0" prefWidth="-1.0">
-              <children>
-                <VBox id="FileVBox" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-              </children>
-            </AnchorPane>
-          </content>
-        </ScrollPane>
+        <TableView id="fileTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+          <columns>
+            <TableColumn id="nameColumn" prefWidth="200.0" text="Name" />
+            <TableColumn id="caseColumn" prefWidth="128.0" text="Case" />
+            <TableColumn id="clientColumn" prefWidth="128.0" text="Client" />
+            <TableColumn id="courtColumn" prefWidth="128.0" text="Court" />
+            <TableColumn id="dateColumn" prefWidth="200.0" text="Date assigned" />
+          </columns>
+        </TableView>
       </children>
     </AnchorPane>
   </children>

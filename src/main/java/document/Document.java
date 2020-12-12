@@ -6,15 +6,16 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-
+import javafx.application.HostServices;
 import legal.*;
 
 public class Document implements java.io.Serializable
 {
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 3182448916075483593L;
 
     private final File file;
     private String name;
@@ -225,8 +226,26 @@ public class Document implements java.io.Serializable
         this.lCase = lCase;
     }
 
-    public enum DocumentTypes
+    public LClient getClient()
     {
-        PLAINTEXT, PDF, IMAGE
+        return this.getCase().getClient();
+    }
+
+    public LCourt getCourt()
+    {
+        return this.getCase().getCourt();
+    }
+
+
+    public Date getDateAssigned()
+    {
+        return this.getCase().getDateAssigned();
+    }
+
+
+    @Override
+    public String toString()
+    {
+        return this.name;
     }
 }

@@ -4,7 +4,8 @@ import org.apache.commons.validator.routines.EmailValidator;
 
 public class LClient implements java.io.Serializable
 {
-    private static final long serialVersionUID = 3L;
+
+    private static final long serialVersionUID = 1195714164291152059L;
 
     private String name;
     private String email;
@@ -91,5 +92,11 @@ public class LClient implements java.io.Serializable
         }
 
         return true;
+    }
+
+    @Override
+    public String toString()
+    {
+        return this.name;
     }
 }
