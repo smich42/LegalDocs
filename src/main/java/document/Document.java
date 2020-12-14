@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import javafx.application.HostServices;
 import legal.*;
 
 public class Document implements java.io.Serializable
