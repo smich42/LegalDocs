@@ -198,6 +198,23 @@ public class DocumentManager
         this.serialiseDocuments();
     }
 
+    public void deleteDocumentAndFile(Document doc)
+    {
+        if (doc.delete())
+        {
+            this.deleteDocument(doc);
+        }
+        else
+        {
+            System.out.println("Failed to delete document '" + doc.getName() + "'");
+        }
+    }
+
+    public void deleteDocument(Document doc)
+    {
+        this.docs.remove(doc);
+    }
+
     public void addDocument(Document doc)
     {
         if (this.docs == null)
@@ -303,6 +320,7 @@ public class DocumentManager
 
         return null;
     }
+
 
     private void serialiseDocuments()
     {

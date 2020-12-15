@@ -44,10 +44,10 @@
           </rowConstraints>
           <children>
             <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Add a document" />
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Add all in directory" GridPane.rowIndex="1" />
+            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Auto-add folder" GridPane.rowIndex="1" />
 
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Edit" GridPane.columnIndex="1" />
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button id="editButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Edit" GridPane.columnIndex="1" />
+            <Button id="deleteButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
             <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Import" GridPane.columnIndex="2" />
             <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Export" GridPane.columnIndex="2" GridPane.rowIndex="1" />
