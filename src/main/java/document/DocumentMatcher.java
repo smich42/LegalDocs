@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class DocumentMatcher
 {
-    static final int SEARCH_WORDS_MAX = 3;
+    static final int SEARCH_WORDS_MAX = 2;
     static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/matchers/";
 
     List<Node> nodes;

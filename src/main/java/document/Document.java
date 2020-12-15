@@ -121,60 +121,50 @@ public class Document implements java.io.Serializable
         return this.getSerialNameNoExt(serialisationPath) + ".attr";
     }
 
-    public String readTerm(Scanner in, int words)
-    {
-        in.useDelimiter(" |\\R");
-        StringBuilder term = null;
-
-        for (int i = 0; i < words; ++i)
-        {
-            if (!in.hasNext())
-            {
-                break;
-            }
-
-            if (term == null)
-            {
-                term = new StringBuilder();
-            }
-
-            if (term.length() > 0)
-            {
-                term.append(" ");
-            }
-
-            term.append(removePunctuation(in.next()));
-        }
-
-        if (term == null)
-        {
-            return null;
-        }
-
-        return term.toString();
-    }
-
     public List<String> listTerms(int wordsPerTerm, int offset)
     {
+        // in.useDelimiter(" |\\R");
+
         List<String> terms = new LinkedList<>();
 
-        offset %= wordsPerTerm; // Offset cannot exceed words per term
-
-        try (Scanner in = new Scanner(this.file))
+        try (Scanner in = new Scanner(this.file, StandardCharsets.UTF_8))
         {
-            String term = this.readTerm(in, offset);
-
-            if (term != null)
+            for (int i = 0; i < offset; ++i)
             {
-                terms.add(term);
+                if (!in.hasNext())
+                {
+
+                    return terms;
+                }
+
+                in.next();
             }
 
-            term = this.readTerm(in, wordsPerTerm);
-
-            while (term != null)
+            while (true)
             {
-                terms.add(term);
-                term = this.readTerm(in, wordsPerTerm);
+                StringBuilder toAdd = new StringBuilder();
+
+                for (int i = 0; i < wordsPerTerm; ++i)
+                {
+                    if (in.hasNext())
+                    {
+                        String S = in.next().trim();
+
+                        if (S.isEmpty())
+                        {
+                            continue;
+                        }
+
+                        toAdd.append(S + " ");
+                    }
+                    else
+                    {
+                        return terms;
+                    }
+
+                }
+
+                terms.add(toAdd.toString());
             }
         }
         catch (IOException e)

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
-
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -60,21 +59,14 @@ public class DocumentManager
 
     public List<Document> search(String searchQuery, int maxDistance)
     {
-        List<Document> results = new LinkedList<>();
-        DocumentMatcher docMatcher;
+        Map<String, List<Document>> results = this.search(new String[] {searchQuery}, maxDistance);
 
-        for (Document doc : this.docs)
+        if (!results.containsKey(searchQuery))
         {
-            docMatcher = new DocumentMatcher(doc);
-
-            if (docMatcher.matches(searchQuery, maxDistance))
-            {
-                results.add(doc);
-            }
+            return new ArrayList<>();
         }
 
-        // Return immutable version of the list of matching documents
-        return results;
+        return results.get(searchQuery);
     }
 
     public Map<String, List<Document>> search(String[] searchQueries, int maxDistance)
@@ -109,23 +101,23 @@ public class DocumentManager
         return results;
     }
 
-    public List<Document> sortByCategory(Class<?> category)
+    public void sortByCategory(Class<?> category)
     {
         if (this.docs == null || this.docs.isEmpty())
         {
-            return new ArrayList<>();
+            return;
         }
 
         List<Document> sorted = new ArrayList<>(this.docs);
 
-        if (category != LCase.class && category != LClient.class && category != LCourt.class && category != Date.class)
+        if (category != Document.class && category != LCase.class && category != LClient.class && category != LCourt.class && category != Date.class)
         {
             throw new IllegalArgumentException("'" + category.toString() + "': no such LCategory");
         }
 
         quicksort(sorted, 0, sorted.size() - 1, category);
 
-        return sorted;
+        this.docs = sorted;
     }
 
     private void quicksort(List<Document> toSort, int l, int r, Class<?> category)
@@ -167,7 +159,12 @@ public class DocumentManager
                 String curName = "";
                 String indexName = "";
 
-                if (category == LCase.class)
+                if (category == Document.class)
+                {
+                    curName = curDoc.getName();
+                    indexName = indexDoc.getName();
+                }
+                else if (category == LCase.class)
                 {
                     curName = curCase.getName();
                     indexName = indexCase.getName();
