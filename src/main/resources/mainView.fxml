@@ -16,6 +16,7 @@
 
 <VBox prefHeight="640.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
+
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
         <TableView id="fileTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -29,31 +30,34 @@
         </TableView>
       </children>
     </AnchorPane>
+
     <ToolBar id="fileToolBar" prefHeight="100.0" prefWidth="900.0">
       <items>
         <GridPane prefHeight="100.0" prefWidth="288.0">
+
           <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="459.0" minWidth="160.0" prefWidth="160.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="459.0" minWidth="130.0" prefWidth="130.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="457.0" minWidth="80.0" prefWidth="80.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="457.0" minWidth="80.0" prefWidth="80.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="457.0" minWidth="70.0" prefWidth="70.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="457.0" minWidth="130.0" prefWidth="130.0" />
           </columnConstraints>
+
           <rowConstraints>
             <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
           </rowConstraints>
-          <children>
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Add a document" />
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" text="Auto-add folder" GridPane.rowIndex="1" />
 
-            <Button id="editButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Edit" GridPane.columnIndex="1" />
+          <children>
+            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Add document" />
+            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Auto-add folder" GridPane.rowIndex="1" />
+
+            <Button id="detailsButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Details" GridPane.columnIndex="1" />
             <Button id="deleteButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
             <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Import" GridPane.columnIndex="2" />
             <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Export" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-            <Button id="sortButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Sort" GridPane.columnIndex="3" />
-            <ChoiceBox id="sortChoiceBox" prefHeight="40.0" prefWidth="70.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <ChoiceBox id="sortChoiceBox" prefHeight="40.0" prefWidth="120.0" GridPane.columnIndex="3" />
 
           </children>
           <padding>
@@ -64,28 +68,34 @@
         <HBox minWidth="25.0" prefHeight="25.0" HBox.hgrow="ALWAYS" />
 
         <GridPane prefHeight="100.0" prefWidth="400.0">
+
           <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="330.0" minWidth="330.0" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="70.0" minWidth="70.0" />
           </columnConstraints>
+
           <rowConstraints>
             <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="40.0" vgrow="SOMETIMES" />
           </rowConstraints>
+
           <children>
             <TextField id="filterTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to filter list" />
             <ChoiceBox id="filterChoiceBox" prefHeight="40.0" prefWidth="70.0" GridPane.columnIndex="1" />
             <TextField id="searchTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to search for text" GridPane.rowIndex="1" />
             <Button id="searchButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Go" GridPane.columnIndex="1" GridPane.rowIndex="1" />
           </children>
+
           <padding>
             <Insets right="10.0" />
           </padding>
         </GridPane>
       </items>
+
       <VBox.margin>
         <Insets />
       </VBox.margin>
     </ToolBar>
+
   </children>
 </VBox>

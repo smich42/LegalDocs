@@ -185,6 +185,19 @@ public class Document implements java.io.Serializable
         return this.file.getAbsolutePath();
     }
 
+    public String getFileExtension()
+    {
+        String fullname = this.file.getName();
+        int extensionIndex = fullname.lastIndexOf('.');
+
+        if (extensionIndex == -1)
+        {
+            return null;
+        }
+
+        return fullname.substring(extensionIndex, fullname.length());
+    }
+
     public String getName()
     {
         return this.name;
@@ -224,7 +237,6 @@ public class Document implements java.io.Serializable
     {
         return this.getCase().getCourt();
     }
-
 
     public Date getDateAssigned()
     {

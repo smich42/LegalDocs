@@ -66,7 +66,6 @@ public class DocumentMatcher
                     return null;
                 }
 
-                @SuppressWarnings("unchecked")
                 List<Node> dser = (List<Node>) inSer.readObject();
 
                 System.out.println("Recovered serialised trie for '" + doc.getName() + "'");

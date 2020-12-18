@@ -4,18 +4,23 @@ public class LCourt implements java.io.Serializable
 {
     private static final long serialVersionUID = 18530754483472595L;
 
+    public enum CourtTypes
+    {
+        UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE
+    }
+
     private String name;
-    private String address;
+    private CourtTypes type;
 
     public LCourt(String name)
     {
-        this.setName(name);
+        this(name, CourtTypes.UNSPECIFIED);
     }
 
-    public LCourt(String name, String street, int number, String city)
+    public LCourt(String name, CourtTypes type)
     {
         this.setName(name);
-        this.setAddress(street, number, city);
+        this.setType(type);
     }
 
     public String getName()
@@ -28,14 +33,14 @@ public class LCourt implements java.io.Serializable
         this.name = name;
     }
 
-    public String getAddress()
+    public CourtTypes getType()
     {
-        return this.address;
+        return (this.type != null) ? (this.type) : (CourtTypes.UNSPECIFIED);
     }
 
-    public void setAddress(String street, int number, String city)
+    public void setType(CourtTypes type)
     {
-        this.address = street + Integer.toString(number) + city;
+        this.type = type;
     }
 
     @Override

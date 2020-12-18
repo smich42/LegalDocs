@@ -1,3 +1,10 @@
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import document.Document;
+import document.DocumentManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -8,32 +15,27 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import document.*;
 
 public class Main extends Application
 {
     private static final DocumentManager dm = new DocumentManager();
     private ObservableList<Document> docsList = FXCollections.observableArrayList(dm.listDocuments());
-    private FilteredList<Document> docsFiltered = new FilteredList(docsList, x -> true);
+    private FilteredList<Document> docsFiltered = new FilteredList<>(docsList, x -> true);
 
     private TableView<Document> tv;
 
@@ -49,8 +51,10 @@ public class Main extends Application
         return displayedDocs;
     }
 
-    public void fillFileListView(Scene scene)
+    public void initTableView(Stage stage)
     {
+        Scene scene = stage.getScene();
+
         tv = (TableView<Document>) scene.lookup("#fileTable");
 
         // Based on James_D's answer at https://stackoverflow.com/a/26565887/7970195
@@ -65,6 +69,14 @@ public class Main extends Application
             });
 
             return row;
+        });
+
+        Button deleteBt = (Button) scene.lookup("#deleteButton");
+        Button editBt = (Button) scene.lookup("#detailsButton");
+
+        tv.setOnMouseClicked(e -> {
+            deleteBt.setDisable(false);
+            editBt.setDisable(false);
         });
 
         TableColumn<Document, String> nameCol = (TableColumn<Document, String>) tv.getColumns().get(0);
@@ -82,13 +94,15 @@ public class Main extends Application
         tv.setItems(docsFiltered);
     }
 
-    public void initFilter(Scene scene)
+    public void initFilter(Stage stage)
     {
+        Scene scene = stage.getScene();
+
         ChoiceBox<String> cb = (ChoiceBox<String>) scene.lookup("#filterChoiceBox");
         cb.getItems().addAll("Name", "Case", "Client", "Court");
         cb.setValue("Name");
 
-
+        // java(16777761)
         TextField tf = (TextField) scene.lookup("#filterTextField");
 
         tf.setOnKeyReleased(e -> {
@@ -117,8 +131,10 @@ public class Main extends Application
         });
     }
 
-    public void initSearch(Scene scene)
+    public void initSearch(Stage stage)
     {
+        Scene scene = stage.getScene();
+
         TextField tf = (TextField) scene.lookup("#searchTextField");
         Button bt = (Button) scene.lookup("#searchButton");
 
@@ -127,42 +143,35 @@ public class Main extends Application
             scene.setCursor(Cursor.WAIT);
 
             // Using Roland's answer at https://stackoverflow.com/a/28206116/7970195 for threading
-            Thread thread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
+            Thread thread = new Thread(() -> {
+                try
                 {
-                    try
-                    {
-                        String S = tf.getText().trim();
+                    String S = tf.getText().trim();
 
-                        if (S.isEmpty() || S.isBlank())
+                    if (S.isEmpty() || S.isBlank())
+                    {
+                        docsFiltered.setPredicate(x1 -> true);
+                    }
+                    else
+                    {
+                        List<Document> matches = dm.searchExactly(S);
+
+                        for (Document doc : matches)
                         {
-                            docsFiltered.setPredicate(x -> true);
+                            System.out.println(doc);
                         }
-                        else
-                        {
-                            List<Document> matches = dm.searchExactly(S);
 
-                            for (Document doc : matches)
-                            {
-                                System.out.println(doc);
-                            }
-
-                            docsFiltered.setPredicate(x -> matches.contains(x));
-                        }
+                        docsFiltered.setPredicate(x2 -> matches.contains(x2));
                     }
-                    catch (Throwable th)
-                    {
-                        th.printStackTrace();
-                    }
-                    finally
-                    {
-                        tf.setText("");
-                        Platform.runLater(() -> {
-                            scene.setCursor(Cursor.DEFAULT);
-                        });
-                    }
+                }
+                catch (Exception exception)
+                {
+                    exception.printStackTrace();
+                }
+                finally
+                {
+                    tf.setText("");
+                    Platform.runLater(() -> scene.setCursor(Cursor.DEFAULT));
                 }
             });
 
@@ -170,64 +179,63 @@ public class Main extends Application
         });
     }
 
-    public void initSort(Scene scene)
+    public void initSort(Stage stage)
     {
+        Scene scene = stage.getScene();
+
         ChoiceBox<String> cb = (ChoiceBox<String>) scene.lookup("#sortChoiceBox");
-        cb.getItems().addAll("Name", "Case", "Client", "Court", "Date");
-        cb.setValue("Name");
+        cb.getItems().addAll("Name sorting", "Case sorting", "Client sorting", "Court sorting", "Date sorting");
+        cb.setValue("Previous sorting");
 
-        Button bt = (Button) scene.lookup("#sortButton");
-
-        bt.setOnAction(e -> {
+        cb.setOnAction(e -> {
             switch (cb.getValue())
             {
-                case "Name":
+                case "Name sorting":
                     dm.sortByCategory(Document.class);
                     break;
-                case "Case":
+                case "Case sorting":
                     dm.sortByCategory(LCase.class);
                     break;
-                case "Client":
+                case "Client sorting":
                     dm.sortByCategory(LClient.class);
                     break;
-                case "Court":
+                case "Court sorting":
                     dm.sortByCategory(LCourt.class);
                     break;
-                case "Date":
+                case "Date sorting":
                     dm.sortByCategory(Date.class);
                     break;
                 default:
                     break;
             }
 
-            List<Document> displayedDocs = getDisplayedDocs();
-
-            docsList = FXCollections.observableArrayList(dm.listDocuments());
-            docsFiltered = new FilteredList(docsList, x -> displayedDocs.contains(x));
-
-            tv.setItems(docsFiltered);
+            refreshFilteredDocs();
         });
     }
 
-    public void initDelete(Scene scene)
+    public void initDelete(Stage stage)
     {
+        Scene scene = stage.getScene();
+
         Button bt = (Button) scene.lookup("#deleteButton");
+
+        bt.setDisable(true);
 
         bt.setOnAction(e -> {
             Document selected = tv.getSelectionModel().getSelectedItem();
 
             if (selected != null)
             {
-                Alert alert = new Alert(AlertType.CONFIRMATION);
+                Alert alert = new Alert(AlertType.NONE);
 
-                alert.setTitle("Delete file");
-                alert.setHeaderText("Choose deletion type");
+                alert.setTitle("Document deletion");
+                alert.setHeaderText("Choose a way to delete '" + selected.getName() + ".'");
 
-                ButtonType deleteFileButton = new ButtonType("Delete file");
                 ButtonType deleteDocumentKeepFileButton = new ButtonType("Delete document and keep file");
+                ButtonType deleteFileButton = new ButtonType("Delete file");
                 ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 
-                alert.getButtonTypes().setAll(deleteFileButton, deleteDocumentKeepFileButton, cancelButton);
+                alert.getButtonTypes().setAll(deleteDocumentKeepFileButton, deleteFileButton, cancelButton);
 
                 Optional<ButtonType> result = alert.showAndWait();
 
@@ -240,14 +248,64 @@ public class Main extends Application
                     dm.deleteDocument(selected);
                 }
 
-                List<Document> displayedDocs = getDisplayedDocs();
-
-                docsList = FXCollections.observableArrayList(dm.listDocuments());
-                docsFiltered = new FilteredList(docsList, x -> displayedDocs.contains(x));
-
-                tv.setItems(docsFiltered);
+                refreshFilteredDocs();
             }
         });
+    }
+
+    public void initDetails(Stage stage)
+    {
+        Scene scene = stage.getScene();
+
+        Button bt = (Button) scene.lookup("#detailsButton");
+
+        bt.setDisable(true);
+
+        bt.setOnAction(e -> {
+            Document selected = tv.getSelectionModel().getSelectedItem();
+
+            if (selected != null)
+            {
+                displayDetailsDialog(stage, selected);
+
+                refreshFilteredDocs();
+            }
+        });
+    }
+
+    public void displayDetailsDialog(Stage owner, Document selected)
+    {
+        System.out.println("Details");
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("detailsView.fxml"));
+
+        Parent root;
+        try
+        {
+            root = (Parent) loader.load();
+
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+
+            stage.setScene(scene);
+            stage.setTitle("Document details");
+
+            stage.show();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void refreshFilteredDocs()
+    {
+        List<Document> displayedDocs = getDisplayedDocs();
+
+        docsList = FXCollections.observableArrayList(dm.listDocuments());
+        docsFiltered = new FilteredList<>(docsList, x -> displayedDocs.contains(x));
+
+        tv.setItems(docsFiltered);
     }
 
     @Override
@@ -260,15 +318,15 @@ public class Main extends Application
         stage.getIcons().add(new Image("logo.png"));
 
         stage.setScene(scene);
-
         stage.show();
 
-        fillFileListView(scene);
+        initTableView(stage);
 
-        initFilter(scene);
-        initSearch(scene);
-        initSort(scene);
-        initDelete(scene);
+        initFilter(stage);
+        initSearch(stage);
+        initSort(stage);
+        initDelete(stage);
+        initDetails(stage);
     }
 
     @Override
