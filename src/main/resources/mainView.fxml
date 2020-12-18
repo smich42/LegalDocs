@@ -17,21 +17,21 @@
 <VBox prefHeight="640.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <children>
 
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="mainAnchorPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
-        <TableView id="fileTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <TableView fx:id="docTableView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
           <columns>
-            <TableColumn id="nameColumn" prefWidth="300.0" text="Name" />
-            <TableColumn id="caseColumn" prefWidth="128.0" text="Case" />
-            <TableColumn id="clientColumn" prefWidth="128.0" text="Client" />
-            <TableColumn id="courtColumn" prefWidth="128.0" text="Court" />
-            <TableColumn id="dateColumn" prefWidth="195.0" text="Date assigned" />
+            <TableColumn fx:id="nameColumn" prefWidth="300.0" text="Name" />
+            <TableColumn fx:id="caseColumn" prefWidth="128.0" text="Case" />
+            <TableColumn fx:id="clientColumn" prefWidth="128.0" text="Client" />
+            <TableColumn fx:id="courtColumn" prefWidth="128.0" text="Court" />
+            <TableColumn fx:id="dateColumn" prefWidth="195.0" text="Date assigned" />
           </columns>
         </TableView>
       </children>
     </AnchorPane>
 
-    <ToolBar id="fileToolBar" prefHeight="100.0" prefWidth="900.0">
+    <ToolBar fx:id="fileToolBar" prefHeight="100.0" prefWidth="900.0">
       <items>
         <GridPane prefHeight="100.0" prefWidth="288.0">
 
@@ -48,16 +48,16 @@
           </rowConstraints>
 
           <children>
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Add document" />
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Auto-add folder" GridPane.rowIndex="1" />
+            <Button fx:id="addDocButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Add document" />
+            <Button fx:id="addDirButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="120.0" text="Auto-add folder" GridPane.rowIndex="1" />
 
-            <Button id="detailsButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Details" GridPane.columnIndex="1" />
-            <Button id="deleteButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="detailsButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Details" GridPane.columnIndex="1" />
+            <Button fx:id="deleteButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Delete" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Import" GridPane.columnIndex="2" />
-            <Button minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Export" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button fx:id="importButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Import" GridPane.columnIndex="2" />
+            <Button fx:id="exportButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Export" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 
-            <ChoiceBox id="sortChoiceBox" prefHeight="40.0" prefWidth="120.0" GridPane.columnIndex="3" />
+            <ChoiceBox fx:id="sortChoiceBox" prefHeight="40.0" prefWidth="120.0" GridPane.columnIndex="3" />
 
           </children>
           <padding>
@@ -80,10 +80,10 @@
           </rowConstraints>
 
           <children>
-            <TextField id="filterTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to filter list" />
-            <ChoiceBox id="filterChoiceBox" prefHeight="40.0" prefWidth="70.0" GridPane.columnIndex="1" />
-            <TextField id="searchTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to search for text" GridPane.rowIndex="1" />
-            <Button id="searchButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Go" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="filterTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to filter list" />
+            <ChoiceBox fx:id="filterChoiceBox" prefHeight="40.0" prefWidth="70.0" GridPane.columnIndex="1" />
+            <TextField fx:id="searchTextField" maxWidth="320.0" prefHeight="40.0" promptText="Type to search for text" GridPane.rowIndex="1" />
+            <Button fx:id="searchButton" minHeight="40.0" minWidth="70.0" mnemonicParsing="false" text="Go" GridPane.columnIndex="1" GridPane.rowIndex="1" />
           </children>
 
           <padding>

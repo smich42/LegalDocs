@@ -69,6 +69,9 @@ public class DocumentManager
         return results.get(searchQuery);
     }
 
+    // Search Document objects in DocumentManager instance
+    // Precondition:
+    // Postcondition:
     public Map<String, List<Document>> search(String[] searchQueries, int maxDistance)
     {
         Map<String, List<Document>> results = new HashMap<>();
@@ -305,7 +308,6 @@ public class DocumentManager
         {
             try (InputStream fSer = new FileInputStream(serialName); FSTObjectInput inSer = new FSTObjectInput(fSer))
             {
-                @SuppressWarnings("unchecked")
                 List<Document> dser = (List<Document>) inSer.readObject();
 
                 System.out.println("Recovered serialised documents");

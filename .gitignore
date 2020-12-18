@@ -2,3 +2,4 @@
 /target/
 /serial/
 IA.iml
+*.code-workspace
