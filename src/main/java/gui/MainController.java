@@ -195,7 +195,7 @@ public class MainController implements Initializable
                             System.out.println(doc);
                         }
 
-                        docsFiltered.setPredicate(x -> matches.contains(x));
+                        docsFiltered.setPredicate(matches::contains);
                     }
                 }
                 catch (Exception exception)
@@ -331,7 +331,7 @@ public class MainController implements Initializable
         List<Document> displayedDocs = getDisplayedDocs();
 
         docsList = FXCollections.observableArrayList(dm.listDocuments());
-        docsFiltered = new FilteredList<>(docsList, x -> displayedDocs.contains(x));
+        docsFiltered = new FilteredList<>(docsList, displayedDocs::contains);
 
         this.docTableView.setItems(docsFiltered);
     }
