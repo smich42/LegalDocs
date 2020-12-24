@@ -269,7 +269,7 @@ public class DocumentManager
 
     public List<LCase> listCases()
     {
-        return new ArrayList<>(this.lCases.values());
+        return Collections.unmodifiableList(new ArrayList<>(this.lCases.values()));
     }
 
     public void addClient(LClient lClient)
@@ -282,7 +282,7 @@ public class DocumentManager
 
     public List<LClient> listClients()
     {
-        return new ArrayList<>(this.lClients.values());
+        return Collections.unmodifiableList(new ArrayList<>(this.lClients.values()));
     }
 
     public void addCourt(LCourt lCourt)
@@ -295,7 +295,7 @@ public class DocumentManager
 
     public List<LCourt> listCourts()
     {
-        return new ArrayList<>(this.lCourts.values());
+        return Collections.unmodifiableList(new ArrayList<>(this.lCourts.values()));
     }
 
     private List<Document> deserialiseDocuments()

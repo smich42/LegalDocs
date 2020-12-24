@@ -1,4 +1,3 @@
-
 import document.DocumentManager;
 import gui.MainController;
 import javafx.application.Application;
@@ -10,7 +9,6 @@ import javafx.stage.Stage;
 
 public class Main extends Application
 {
-
     private static final DocumentManager dm = new DocumentManager();
 
     @Override
@@ -30,7 +28,6 @@ public class Main extends Application
 
         stage.setScene(scene);
         stage.show();
-
     }
 
     @Override
@@ -42,7 +39,7 @@ public class Main extends Application
 
     public static void main(String[] args)
     {
-        Test.addWikiDocuments(dm);
+        Utilities.addWikiDocuments(dm);
         launch(args);
     }
 }

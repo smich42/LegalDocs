@@ -9,11 +9,11 @@ import java.util.List;
 import document.*;
 import legal.*;
 
-public final class Test
+public final class Utilities
 {
     private static final SplittableRandom rand = new SplittableRandom();
 
-    private Test()
+    private Utilities()
     {
     }
 

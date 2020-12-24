@@ -6,7 +6,27 @@ public class LCourt implements java.io.Serializable
 
     public enum CourtTypes
     {
-        UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE
+        UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE;
+
+        @Override
+        public String toString()
+        {
+            switch (this)
+            {
+                case CRIMINAL:
+                    return "Criminal Court";
+
+                case CIVIL:
+                    return "Civil Court";
+
+                case ADMINISTRATIVE:
+                    return "Administrative Court";
+
+                default:
+                case UNSPECIFIED:
+                    return "Unspecified";
+            }
+        }
     }
 
     private String name;

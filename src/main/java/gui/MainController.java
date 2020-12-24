@@ -303,7 +303,7 @@ public class MainController implements Initializable
 
     public void displayDetailsDialog(Document selected)
     {
-        DetailsController detailsController = new DetailsController(selected);
+        DetailsController detailsController = new DetailsController(selected, this.dm);
 
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("detailsView.fxml"));
         loader.setController(detailsController);
