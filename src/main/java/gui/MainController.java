@@ -324,12 +324,7 @@ public class MainController implements Initializable
                 dm.importSerialised(selected);
             }
 
-            dm = new DocumentManager();
-
-            docsList = FXCollections.observableArrayList(dm.listDocuments());
-            docsFiltered = new FilteredList<>(docsList, x -> true);
-
-            this.docTableView.setItems(docsFiltered);
+            this.refreshDocsDetails();
         });
 
         exportButton.setOnAction(e -> {
@@ -362,7 +357,7 @@ public class MainController implements Initializable
 
     public void displayDetailsDialog(Document selected)
     {
-        DetailsController detailsController = new DetailsController(selected, this.dm);
+        DetailsController detailsController = new DetailsController(this, selected, this.dm);
 
         FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("detailsView.fxml"));
         loader.setController(detailsController);
@@ -391,6 +386,16 @@ public class MainController implements Initializable
 
         docsList = FXCollections.observableArrayList(dm.listDocuments());
         docsFiltered = new FilteredList<>(docsList, displayedDocs::contains);
+
+        this.docTableView.setItems(docsFiltered);
+    }
+
+    public void refreshDocsDetails()
+    {
+        docsList.clear();
+
+        docsList = FXCollections.observableArrayList(dm.listDocuments());
+        docsFiltered = new FilteredList<>(docsList, x -> true);
 
         this.docTableView.setItems(docsFiltered);
     }
