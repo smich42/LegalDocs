@@ -64,7 +64,7 @@ public class LCase implements java.io.Serializable
             @Override
             public String toString()
             {
-                return new SimpleDateFormat("dd/MM/yyyy hh:mm").format(this);
+                return new SimpleDateFormat("dd MMMM yyyy").format(this);
             }
         };
     }
