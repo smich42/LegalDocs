@@ -6,10 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
-
 import legal.*;
 
 public class DocumentManager
@@ -36,15 +38,7 @@ public class DocumentManager
         this.lClients = new LinkedHashMap<>();
         this.lCourts = new LinkedHashMap<>();
 
-        List<Document> deserialisedDocs = this.deserialiseDocuments();
-
-        if (deserialisedDocs != null)
-        {
-            for (Document doc : deserialisedDocs)
-            {
-                this.addDocument(doc);
-            }
-        }
+        this.updateFromSerialised();
     }
 
     public List<Document> searchExactly(String searchQuery)
@@ -369,6 +363,72 @@ public class DocumentManager
         {
             System.out.println("Failed to delete serialised documents");
         }
+    }
+
+    public void updateFromSerialised()
+    {
+        List<Document> deserialisedDocs = this.deserialiseDocuments();
+
+        if (deserialisedDocs != null)
+        {
+            for (Document doc : deserialisedDocs)
+            {
+                this.addDocument(doc);
+            }
+        }
+    }
+
+    public void importSerialised(File importFile)
+    {
+        File serialPath = new File(SERIALISATION_PATH);
+
+        if (!serialPath.exists())
+        {
+            if (serialPath.mkdirs())
+            {
+                System.out.println("Created directory for serialisation at '" + SERIALISATION_PATH + "'");
+            }
+            else
+            {
+                System.out.println("Failed to create directory for serialisation at '" + SERIALISATION_PATH + "'");
+                return; // Stop method execution if directory does not exist
+            }
+        }
+
+        String serialName = this.getSerialFilename();
+
+        try
+        {
+            Files.copy(importFile.toPath(), Paths.get(serialName), StandardCopyOption.REPLACE_EXISTING);
+            this.updateFromSerialised();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean exportSerialised()
+    {
+        String serialName = this.getSerialFilename();
+        File serialFile = new File(serialName);
+
+        if (serialFile.exists())
+        {
+            try
+            {
+                Files.copy(serialFile.toPath(), Paths.get(System.getProperty("user.home") + "/Desktop/EXPORT_CONFIG.serl_DOCS"),
+                        StandardCopyOption.REPLACE_EXISTING);
+
+                return true;
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
     }
 
     private String getSerialFilename()

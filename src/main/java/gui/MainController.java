@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -32,7 +33,9 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser.ExtensionFilter;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
@@ -82,6 +85,11 @@ public class MainController implements Initializable
     @FXML
     private Button searchButton;
 
+    public Stage getStage()
+    {
+        return (Stage) this.mainAnchorPane.getScene().getWindow();
+    }
+
     public List<Document> getDisplayedDocs()
     {
         List<Document> displayedDocs = new ArrayList<>();
@@ -103,8 +111,8 @@ public class MainController implements Initializable
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty())
                 {
-                    Stage stage = (Stage) this.mainAnchorPane.getScene().getWindow();
-                    HostServices hostServices = (HostServices) stage.getProperties().get("hostServices");
+
+                    HostServices hostServices = (HostServices) this.getStage().getProperties().get("hostServices");
 
                     hostServices.showDocument(row.getItem().getFullPath()); // Open file with defaut programme
                 }
@@ -301,6 +309,57 @@ public class MainController implements Initializable
         });
     }
 
+    public void initImportExport()
+    {
+        importButton.setOnAction(e -> {
+            FileChooser importFileChooser = new FileChooser();
+            importFileChooser.setTitle("Select import file");
+
+            importFileChooser.getExtensionFilters().add(new ExtensionFilter("Legal document configuration files", "*.serl_DOCS"));
+
+            File selected = importFileChooser.showOpenDialog(this.getStage());
+
+            if (selected != null)
+            {
+                dm.importSerialised(selected);
+            }
+
+            dm = new DocumentManager();
+
+            docsList = FXCollections.observableArrayList(dm.listDocuments());
+            docsFiltered = new FilteredList<>(docsList, x -> true);
+
+            this.docTableView.setItems(docsFiltered);
+        });
+
+        exportButton.setOnAction(e -> {
+            if (dm.exportSerialised())
+            {
+                Alert alert = new Alert(AlertType.NONE);
+
+                alert.setTitle("Configuration exported");
+                alert.setHeaderText("Configuration exported to desktop.");
+
+                ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+
+                alert.getButtonTypes().setAll(okButton);
+                alert.showAndWait();
+            }
+            else
+            {
+                Alert alert = new Alert(AlertType.ERROR);
+
+                alert.setTitle("Configuration not exported");
+                alert.setHeaderText("An error occurred while exporting configuration. Please contact me at [email].");
+
+                ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
+
+                alert.getButtonTypes().setAll(okButton);
+                alert.showAndWait();
+            }
+        });
+    }
+
     public void displayDetailsDialog(Document selected)
     {
         DetailsController detailsController = new DetailsController(selected, this.dm);
@@ -354,5 +413,6 @@ public class MainController implements Initializable
         initSort();
         initDelete();
         initDetails();
+        initImportExport();
     }
 }
