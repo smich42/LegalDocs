@@ -28,6 +28,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -183,7 +184,6 @@ public class MainController implements Initializable
     private void initSearch()
     {
         searchButton.setOnAction(e -> {
-
             Parent root = mainAnchorPane.getScene().getRoot();
 
             root.setCursor(Cursor.WAIT);
@@ -362,17 +362,55 @@ public class MainController implements Initializable
 
     private void addDocsToManager(List<Document> docs)
     {
-        if (docs != null)
-        {
-            for (Document doc : docs)
-            {
-                dm.addDocument(doc);
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("indexingView.fxml"));
 
-                if (!DocumentMatcher.hasSerialisedTrieOf(doc))
+        try
+        {
+            Parent root = loader.load();
+
+            Scene indexingScene = new Scene(root);
+            Stage indexingStage = new Stage();
+
+            indexingStage.setScene(indexingScene);
+            indexingStage.setTitle("Indexing progress");
+
+            indexingStage.show();
+
+            ProgressBar indexingProgressBar = (ProgressBar) indexingScene.lookup("#indexingProgressBar");
+
+            Thread thread = new Thread(() -> {
+                double step = 1.0 / (double) docs.size();
+                double progress = 0.0;
+
+                root.setCursor(Cursor.WAIT);
+
+                if (docs != null)
                 {
-                    DocumentMatcher.serialiseTrieOf(doc);
+                    for (Document doc : docs)
+                    {
+                        indexingProgressBar.setProgress(progress);
+
+                        dm.addDocument(doc);
+
+                        if (!DocumentMatcher.hasSerialisedTrieOf(doc))
+                        {
+                            DocumentMatcher.serialiseTrieOf(doc);
+                        }
+
+                        progress += step;
+                    }
                 }
-            }
+
+                Platform.runLater(() -> root.setCursor(Cursor.DEFAULT));
+                Platform.runLater(indexingStage::close);
+                Platform.runLater(this::refreshDocsDetails);
+            });
+
+            thread.start();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -417,8 +455,6 @@ public class MainController implements Initializable
 
                 this.addDocsToManager(docsToAdd);
             }
-
-            this.refreshDocsDetails();
         });
     }
 
