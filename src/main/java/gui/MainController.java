@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -325,6 +326,7 @@ public class MainController implements Initializable
             if (selected != null)
             {
                 dm.importSerialised(selected);
+                this.addDocsToManager(dm.deserialiseDocuments());
             }
 
             this.refreshDocsDetails();
@@ -358,6 +360,22 @@ public class MainController implements Initializable
         });
     }
 
+    private void addDocsToManager(List<Document> docs)
+    {
+        if (docs != null)
+        {
+            for (Document doc : docs)
+            {
+                dm.addDocument(doc);
+
+                if (!DocumentMatcher.hasSerialisedTrieOf(doc))
+                {
+                    DocumentMatcher.serialiseTrieOf(doc);
+                }
+            }
+        }
+    }
+
     private void initAddDoc()
     {
         addDocButton.setOnAction(e -> {
@@ -371,8 +389,8 @@ public class MainController implements Initializable
                 Document docToAdd = new Document(selected);
 
                 displayDetailsDialog(docToAdd);
-                dm.addDocument(docToAdd);
 
+                dm.addDocument(docToAdd);
                 DocumentMatcher.serialiseTrieOf(docToAdd);
             }
 
@@ -390,13 +408,14 @@ public class MainController implements Initializable
 
             if (selected != null)
             {
+                List<Document> docsToAdd = new LinkedList<>();
+
                 for (File f : Objects.requireNonNull(selected.listFiles()))
                 {
-                    Document docToAdd = new Document(f);
-
-                    dm.addDocument(docToAdd);
-                    DocumentMatcher.serialiseTrieOf(docToAdd);
+                    docsToAdd.add(new Document(f));
                 }
+
+                this.addDocsToManager(docsToAdd);
             }
 
             this.refreshDocsDetails();

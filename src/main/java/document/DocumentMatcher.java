@@ -42,40 +42,23 @@ public class DocumentMatcher
         String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
         String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
-        File serialFile = new File(serialName);
-        File attrsFile = new File(attrsName);
-
-        if (serialFile.exists() && attrsFile.exists())
+        try (InputStream fSer = new FileInputStream(serialName);
+                FSTObjectInput inSer = new FSTObjectInput(fSer);
+                FileInputStream fAttrs = new FileInputStream(attrsName);
+                DataInputStream inAttrs = new DataInputStream(fAttrs))
         {
-            try (InputStream fSer = new FileInputStream(serialName);
-                    FSTObjectInput inSer = new FSTObjectInput(fSer);
-                    FileInputStream fAttrs = new FileInputStream(attrsName);
-                    DataInputStream inAttrs = new DataInputStream(fAttrs))
+            if (hasSerialisedTrieOf(doc))
             {
-                if (doc.getDateModified() != inAttrs.readLong())
-                {
-                    System.out.println("Serialised trie for '" + doc.getName() + "' outdated");
-
-                    return null;
-                }
-
-                if (SEARCH_WORDS_MAX > inAttrs.readInt())
-                {
-                    System.out.println("Serialised trie for '" + doc.getName() + "' too small");
-
-                    return null;
-                }
-
                 List<Node> dser = (List<Node>) inSer.readObject();
 
                 System.out.println("Recovered serialised trie for '" + doc.getName() + "'");
 
                 return dser;
             }
-            catch (IOException | ClassNotFoundException e)
-            {
-                e.printStackTrace();
-            }
+        }
+        catch (IOException | ClassNotFoundException e)
+        {
+            e.printStackTrace();
         }
 
         return null;
@@ -89,7 +72,22 @@ public class DocumentMatcher
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);
 
-        return serialFile.exists() && attrsFile.exists();
+        if (serialFile.exists() && attrsFile.exists())
+        {
+            try (InputStream fSer = new FileInputStream(serialName);
+                    FSTObjectInput inSer = new FSTObjectInput(fSer);
+                    FileInputStream fAttrs = new FileInputStream(attrsName);
+                    DataInputStream inAttrs = new DataInputStream(fAttrs))
+            {
+                return (doc.getDateModified() == inAttrs.readLong()) && (SEARCH_WORDS_MAX <= inAttrs.readInt());
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return false;
     }
 
     public static void serialiseTrieOf(Document doc)

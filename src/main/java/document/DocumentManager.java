@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import java.util.*;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
@@ -38,7 +39,7 @@ public class DocumentManager
         this.lClients = new LinkedHashMap<>();
         this.lCourts = new LinkedHashMap<>();
 
-        this.updateFromSerialised();
+        this.addFromSerialised();
     }
 
     public List<Document> searchExactly(String searchQuery)
@@ -142,10 +143,19 @@ public class DocumentManager
 
             if (category == Date.class)
             {
-                Date curDate = curCase.getDateAssigned();
-                Date indexDate = indexCase.getDateAssigned();
+                Date curDate = new Date(0);
+                Date indexDate = new Date(0);
 
-                if (indexDate.compareTo(curDate) < 0 || (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
+                if (curCase != null)
+                {
+                    curDate = curCase.getDateAssigned();
+                }
+                if (indexCase != null)
+                {
+                    indexDate = indexCase.getDateAssigned();
+                }
+
+                if (indexDate.compareTo(curDate) > 0 || (indexDate.compareTo(curDate) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1;
                     Collections.swap(toSort, index, i);
@@ -163,18 +173,36 @@ public class DocumentManager
                 }
                 else if (category == LCase.class)
                 {
-                    curName = curCase.getName();
-                    indexName = indexCase.getName();
+                    if (curCase != null)
+                    {
+                        curName = curCase.getName();
+                    }
+                    if (indexCase != null)
+                    {
+                        indexName = indexCase.getName();
+                    }
                 }
                 else if (category == LClient.class)
                 {
-                    curName = curCase.getClient().getName();
-                    indexName = indexCase.getClient().getName();
+                    if (curCase != null && curCase.getClient() != null)
+                    {
+                        curName = curCase.getClient().getName();
+                    }
+                    if (indexCase != null && indexCase.getClient() != null)
+                    {
+                        indexName = indexCase.getClient().getName();
+                    }
                 }
                 else if (category == LCourt.class)
                 {
-                    curName = curCase.getCourt().getName();
-                    indexName = indexCase.getCourt().getName();
+                    if (curCase != null && curCase.getCourt() != null)
+                    {
+                        curName = curCase.getCourt().getName();
+                    }
+                    if (indexCase != null && indexCase.getCourt() != null)
+                    {
+                        indexName = indexCase.getCourt().getName();
+                    }
                 }
 
                 if (indexName.compareTo(curName) < 0 || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
@@ -307,7 +335,7 @@ public class DocumentManager
         return Collections.unmodifiableList(new ArrayList<>(this.lCourts.values()));
     }
 
-    private List<Document> deserialiseDocuments()
+    public List<Document> deserialiseDocuments()
     {
         String serialName = this.getSerialFilename();
 
@@ -379,7 +407,7 @@ public class DocumentManager
         }
     }
 
-    public void updateFromSerialised()
+    private void addFromSerialised()
     {
         List<Document> deserialisedDocs = this.deserialiseDocuments();
 
@@ -419,7 +447,6 @@ public class DocumentManager
         try
         {
             Files.copy(importFile.toPath(), Paths.get(serialName), StandardCopyOption.REPLACE_EXISTING);
-            this.updateFromSerialised();
         }
         catch (IOException e)
         {

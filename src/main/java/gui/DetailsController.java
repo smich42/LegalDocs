@@ -17,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -334,5 +335,16 @@ public class DetailsController implements Initializable
 
         this.invalidWarning.visibleProperty().bind(dataIsInvalid);
         this.confirmationButton.disableProperty().bind(dataIsInvalid);
+
+        // Using Johan Kaewberg's answer at https://stackoverflow.com/a/53186959/7970195
+        dateAssignedDatePicker.setDayCellFactory(d -> new DateCell()
+        {
+            @Override
+            public void updateItem(LocalDate item, boolean empty)
+            {
+                super.updateItem(item, empty);
+                setDisable(item.isAfter(LocalDate.now()));
+            }
+        });
     }
 }
