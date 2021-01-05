@@ -12,6 +12,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.converter.LocalDateStringConverter;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
@@ -84,12 +85,22 @@ public class DetailsController implements Initializable
 
     private static LocalDate toLocalDate(Date date)
     {
+        if (date == null)
+        {
+            return LocalDate.now();
+        }
+
         Instant dateInstant = date.toInstant();
         return dateInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     private static Date fromLocalDate(LocalDate localDate)
     {
+        if (localDate == null)
+        {
+            return Date.from(Instant.now());
+        }
+
         Instant dateInstant = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         return Date.from(dateInstant);
     }
@@ -132,30 +143,39 @@ public class DetailsController implements Initializable
 
     private void fillCaseFields(LCase lCase)
     {
-        this.caseChoiceBox.setValue(lCase);
-        this.caseNameTextField.setText(lCase.getName());
+        if (lCase != null)
+        {
+            this.caseChoiceBox.setValue(lCase);
+            this.caseNameTextField.setText(lCase.getName());
 
-        this.dateAssignedDatePicker.setValue(toLocalDate(lCase.getDateAssigned()));
+            this.dateAssignedDatePicker.setValue(toLocalDate(lCase.getDateAssigned()));
 
-        this.fillClientFields(lCase.getClient());
-        this.fillCourtFields(lCase.getCourt());
+            this.fillClientFields(lCase.getClient());
+            this.fillCourtFields(lCase.getCourt());
+        }
     }
 
     private void fillClientFields(LClient lClient)
     {
-        this.clientChoiceBox.setValue(lClient);
+        if (lClient != null)
+        {
+            this.clientChoiceBox.setValue(lClient);
 
-        this.clientNameTextField.setText(lClient.getName());
-        this.clientEmailTextField.setText(lClient.getEmail());
-        this.clientPhoneTextField.setText(lClient.getPhone());
+            this.clientNameTextField.setText(lClient.getName());
+            this.clientEmailTextField.setText(lClient.getEmail());
+            this.clientPhoneTextField.setText(lClient.getPhone());
+        }
     }
 
     private void fillCourtFields(LCourt lCourt)
     {
-        this.courtChoiceBox.setValue(lCourt);
+        if (lCourt != null)
+        {
+            this.courtChoiceBox.setValue(lCourt);
 
-        this.courtNameTextField.setText(lCourt.getName());
-        this.courtTypeChoiceBox.setValue(lCourt.getType());
+            this.courtNameTextField.setText(lCourt.getName());
+            this.courtTypeChoiceBox.setValue(lCourt.getType());
+        }
     }
 
     private void saveChanges()
@@ -177,16 +197,10 @@ public class DetailsController implements Initializable
         lCase.setCourt(lCourt);
 
         this.doc.setName(this.docNameTextField.getText());
+        this.doc.setCase(lCase);
 
         for (Document curDoc : dm.listDocuments())
         {
-            if (curDoc == this.doc)
-            {
-                // Always modify the details of the current document because a new LCase/LClient/LCourt may have been created by the user
-                // in which case the comparisons below will (and should) fail
-                this.doc.setCase(lCase);
-            }
-
             if (curDoc.getClient() == this.clientChoiceBox.getValue())
             {
                 curDoc.getCase().setClient(lClient);

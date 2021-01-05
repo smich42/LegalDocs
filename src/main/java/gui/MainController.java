@@ -85,12 +85,12 @@ public class MainController implements Initializable
     @FXML
     private Button searchButton;
 
-    public Stage getStage()
+    private Stage getStage()
     {
         return (Stage) this.mainAnchorPane.getScene().getWindow();
     }
 
-    public List<Document> getDisplayedDocs()
+    private List<Document> getDisplayedDocs()
     {
         List<Document> displayedDocs = new ArrayList<>();
 
@@ -102,7 +102,7 @@ public class MainController implements Initializable
         return displayedDocs;
     }
 
-    public void initTableView()
+    private void initTableView()
     {
         // Based on James_D's answer at https://stackoverflow.com/a/26565887/7970195
         this.docTableView.setRowFactory(table -> {
@@ -141,7 +141,7 @@ public class MainController implements Initializable
         this.docTableView.setItems(docsFiltered);
     }
 
-    public void initFilter()
+    private void initFilter()
     {
         filterChoiceBox.getItems().addAll("Name", "Case", "Client", "Court");
         filterChoiceBox.setValue("Name");
@@ -176,7 +176,7 @@ public class MainController implements Initializable
         });
     }
 
-    public void initSearch()
+    private void initSearch()
     {
         searchButton.setOnAction(e -> {
 
@@ -221,7 +221,7 @@ public class MainController implements Initializable
         });
     }
 
-    public void initSort()
+    private void initSort()
     {
         sortChoiceBox.getItems().addAll("Name sorting", "Case sorting", "Client sorting", "Court sorting", "Date sorting");
         sortChoiceBox.setValue("Previous sorting");
@@ -257,7 +257,7 @@ public class MainController implements Initializable
         });
     }
 
-    public void initDelete()
+    private void initDelete()
     {
         deleteButton.setDisable(true);
 
@@ -293,7 +293,7 @@ public class MainController implements Initializable
         });
     }
 
-    public void initDetails()
+    private void initDetails()
     {
         detailsButton.setDisable(true);
 
@@ -309,13 +309,13 @@ public class MainController implements Initializable
         });
     }
 
-    public void initImportExport()
+    private void initImportExport()
     {
         importButton.setOnAction(e -> {
             FileChooser importFileChooser = new FileChooser();
             importFileChooser.setTitle("Select import file");
 
-            importFileChooser.getExtensionFilters().add(new ExtensionFilter("Legal document configuration files", "*.serl_DOCS"));
+            importFileChooser.getExtensionFilters().add(new ExtensionFilter("Legal document config", "*.serl_DOCS"));
 
             File selected = importFileChooser.showOpenDialog(this.getStage());
 
@@ -355,7 +355,27 @@ public class MainController implements Initializable
         });
     }
 
-    public void displayDetailsDialog(Document selected)
+    private void initAddDoc()
+    {
+        addDocButton.setOnAction(e -> {
+            FileChooser docFileChooser = new FileChooser();
+            docFileChooser.setTitle("Select file");
+
+            File selected = docFileChooser.showOpenDialog(this.getStage());
+
+            if (selected != null)
+            {
+                Document docToAdd = new Document(selected);
+
+                displayDetailsDialog(docToAdd);
+                dm.addDocument(docToAdd);
+            }
+
+            this.refreshDocsDetails();
+        });
+    }
+
+    private void displayDetailsDialog(Document selected)
     {
         DetailsController detailsController = new DetailsController(this, selected, this.dm);
 
@@ -372,7 +392,7 @@ public class MainController implements Initializable
             dialogStage.setScene(dialogScene);
             dialogStage.setTitle("Document details");
 
-            dialogStage.show();
+            dialogStage.showAndWait();
         }
         catch (IOException e)
         {
@@ -419,5 +439,6 @@ public class MainController implements Initializable
         initDelete();
         initDetails();
         initImportExport();
+        initAddDoc();
     }
 }

@@ -268,6 +268,11 @@ public class DocumentManager
 
     public void addClient(LClient lClient)
     {
+        if (lClient == null)
+        {
+            return;
+        }
+
         if (!this.lClients.containsKey(lClient.getName()))
         {
             this.lClients.put(lClient.getName(), lClient);
@@ -281,6 +286,11 @@ public class DocumentManager
 
     public void addCourt(LCourt lCourt)
     {
+        if (lCourt == null)
+        {
+            return;
+        }
+
         if (!this.lCourts.containsKey(lCourt.getName()))
         {
             this.lCourts.put(lCourt.getName(), lCourt);
