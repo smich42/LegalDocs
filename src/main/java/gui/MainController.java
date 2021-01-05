@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import document.Document;
 import document.DocumentManager;
+import document.DocumentMatcher;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -369,6 +370,8 @@ public class MainController implements Initializable
 
                 displayDetailsDialog(docToAdd);
                 dm.addDocument(docToAdd);
+
+                DocumentMatcher.serialiseTrieOf(docToAdd);
             }
 
             this.refreshDocsDetails();

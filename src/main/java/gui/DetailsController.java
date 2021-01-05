@@ -1,5 +1,14 @@
 package gui;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.ResourceBundle;
+import document.Document;
+import document.DocumentManager;
 import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,19 +21,9 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.converter.LocalDateStringConverter;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
-import java.io.IOException;
-import java.net.URL;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.ResourceBundle;
-import document.Document;
-import document.DocumentManager;
 
 public class DetailsController implements Initializable
 {
