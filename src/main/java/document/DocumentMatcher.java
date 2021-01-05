@@ -81,6 +81,17 @@ public class DocumentMatcher
         return null;
     }
 
+    public static boolean hasSerialisedTrieOf(Document doc)
+    {
+        String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
+        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
+
+        File serialFile = new File(serialName);
+        File attrsFile = new File(attrsName);
+
+        return serialFile.exists() && attrsFile.exists();
+    }
+
     public static void serialiseTrieOf(Document doc)
     {
         File serialPath = new File(SERIALISATION_PATH);

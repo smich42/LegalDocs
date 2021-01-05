@@ -252,6 +252,11 @@ public class DocumentManager
 
     public void addCase(LCase lCase)
     {
+        if (lCase == null)
+        {
+            return;
+        }
+
         if (!this.lCases.containsKey(lCase.getName()))
         {
             this.lCases.put(lCase.getName(), lCase);
@@ -327,7 +332,6 @@ public class DocumentManager
         return null;
     }
 
-
     private void serialiseDocuments()
     {
         File serialPath = new File(SERIALISATION_PATH);
@@ -384,6 +388,11 @@ public class DocumentManager
             for (Document doc : deserialisedDocs)
             {
                 this.addDocument(doc);
+
+                if (!DocumentMatcher.hasSerialisedTrieOf(doc))
+                {
+                    DocumentMatcher.serialiseTrieOf(doc);
+                }
             }
         }
     }

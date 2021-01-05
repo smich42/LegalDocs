@@ -230,19 +230,33 @@ public class Document implements java.io.Serializable
 
     public LClient getClient()
     {
+        if (this.getCase() == null)
+        {
+            return null;
+        }
+
         return this.getCase().getClient();
     }
 
     public LCourt getCourt()
     {
+        if (this.getCase() == null)
+        {
+            return null;
+        }
+
         return this.getCase().getCourt();
     }
 
     public Date getDateAssigned()
     {
+        if (this.getCase() == null)
+        {
+            return null;
+        }
+
         return this.getCase().getDateAssigned();
     }
-
 
     @Override
     public String toString()

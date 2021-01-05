@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import document.Document;
@@ -34,6 +35,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -378,6 +380,29 @@ public class MainController implements Initializable
         });
     }
 
+    private void initAddDir()
+    {
+        addDirButton.setOnAction(e -> {
+            DirectoryChooser dirChooser = new DirectoryChooser();
+            dirChooser.setTitle("Select folder");
+
+            File selected = dirChooser.showDialog(this.getStage());
+
+            if (selected != null)
+            {
+                for (File f : Objects.requireNonNull(selected.listFiles()))
+                {
+                    Document docToAdd = new Document(f);
+
+                    dm.addDocument(docToAdd);
+                    DocumentMatcher.serialiseTrieOf(docToAdd);
+                }
+            }
+
+            this.refreshDocsDetails();
+        });
+    }
+
     private void displayDetailsDialog(Document selected)
     {
         DetailsController detailsController = new DetailsController(this, selected, this.dm);
@@ -443,5 +468,6 @@ public class MainController implements Initializable
         initDetails();
         initImportExport();
         initAddDoc();
+        initAddDir();
     }
 }
