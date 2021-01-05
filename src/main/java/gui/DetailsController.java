@@ -1,15 +1,21 @@
 package gui;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
+import java.io.IOException;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -53,6 +59,9 @@ public class DetailsController implements Initializable
     private TextField clientPhoneTextField;
 
     @FXML
+    private Text invalidWarning;
+
+    @FXML
     private ChoiceBox<LCourt> courtChoiceBox;
 
     @FXML
@@ -73,29 +82,28 @@ public class DetailsController implements Initializable
     @FXML
     private Button cancelButton;
 
-    public LocalDate toLocalDate(Date date)
+    private static LocalDate toLocalDate(Date date)
     {
         Instant dateInstant = date.toInstant();
         return dateInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    public Date fromLocalDate(LocalDate localDate)
+    private static Date fromLocalDate(LocalDate localDate)
     {
         Instant dateInstant = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
         return Date.from(dateInstant);
     }
 
-    public Stage getStage()
+    private Stage getStage()
     {
         return (Stage) this.cancelButton.getScene().getWindow();
     }
 
-    public void initChoiceBoxes()
+    private void initChoiceBoxes()
     {
         this.caseChoiceBox.getItems().addAll(dm.listCases());
         this.clientChoiceBox.getItems().addAll(dm.listClients());
         this.courtChoiceBox.getItems().addAll(dm.listCourts());
-
         this.courtTypeChoiceBox.getItems().addAll(LCourt.CourtTypes.values());
 
         // Using zhujik's answer at https://stackoverflow.com/a/14523434/7970195
@@ -106,34 +114,34 @@ public class DetailsController implements Initializable
 
         clientChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
             LClient selected = clientChoiceBox.getItems().get((Integer) number2);
-            fillClientValues(selected);
+            fillClientFields(selected);
         });
 
         courtChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
             LCourt selected = courtChoiceBox.getItems().get((Integer) number2);
-            fillCourtValues(selected);
+            fillCourtFields(selected);
         });
     }
 
-    public void fillDocumentFields(Document doc)
+    private void fillDocumentFields(Document doc)
     {
         this.docNameTextField.setText(doc.getName());
 
         this.fillCaseFields(doc.getCase());
     }
 
-    public void fillCaseFields(LCase lCase)
+    private void fillCaseFields(LCase lCase)
     {
         this.caseChoiceBox.setValue(lCase);
         this.caseNameTextField.setText(lCase.getName());
 
-        this.dateAssignedDatePicker.setValue(this.toLocalDate(lCase.getDateAssigned()));
+        this.dateAssignedDatePicker.setValue(toLocalDate(lCase.getDateAssigned()));
 
-        this.fillClientValues(lCase.getClient());
-        this.fillCourtValues(lCase.getCourt());
+        this.fillClientFields(lCase.getClient());
+        this.fillCourtFields(lCase.getCourt());
     }
 
-    public void fillClientValues(LClient lClient)
+    private void fillClientFields(LClient lClient)
     {
         this.clientChoiceBox.setValue(lClient);
 
@@ -142,7 +150,7 @@ public class DetailsController implements Initializable
         this.clientPhoneTextField.setText(lClient.getPhone());
     }
 
-    public void fillCourtValues(LCourt lCourt)
+    private void fillCourtFields(LCourt lCourt)
     {
         this.courtChoiceBox.setValue(lCourt);
 
@@ -150,7 +158,7 @@ public class DetailsController implements Initializable
         this.courtTypeChoiceBox.setValue(lCourt.getType());
     }
 
-    public void saveChanges()
+    private void saveChanges()
     {
         LCase lCase = this.caseChoiceBox.getValue();
         LClient lClient = this.clientChoiceBox.getValue();
@@ -164,20 +172,29 @@ public class DetailsController implements Initializable
         lCourt.setName(this.courtNameTextField.getText());
 
         lCase.setName(this.caseNameTextField.getText());
-        lCase.setDateAssigned(this.fromLocalDate(dateAssignedDatePicker.getValue()));
+        lCase.setDateAssigned(fromLocalDate(dateAssignedDatePicker.getValue()));
+        lCase.setClient(lClient);
+        lCase.setCourt(lCourt);
 
         this.doc.setName(this.docNameTextField.getText());
 
         for (Document curDoc : dm.listDocuments())
         {
+            if (curDoc == this.doc)
+            {
+                // Always modify the details of the current document because a new LCase/LClient/LCourt may have been created by the user
+                // in which case the comparisons below will (and should) fail
+                this.doc.setCase(lCase);
+            }
+
             if (curDoc.getClient() == this.clientChoiceBox.getValue())
             {
-                lCase.setClient(lClient);
+                curDoc.getCase().setClient(lClient);
             }
 
             if (curDoc.getCourt() == this.courtChoiceBox.getValue())
             {
-                lCase.setCourt(lCourt);
+                curDoc.getCase().setCourt(lCourt);
             }
 
             if (curDoc.getCase() == this.caseChoiceBox.getValue())
@@ -185,6 +202,85 @@ public class DetailsController implements Initializable
                 curDoc.setCase(lCase);
             }
         }
+    }
+
+    private void initNewButtons()
+    {
+        this.newCaseButton.setOnAction(e -> {
+            String name = this.askName();
+
+            if (name != null)
+            {
+                LCase newCase = new LCase(name, this.courtChoiceBox.getValue(), this.clientChoiceBox.getValue(),
+                        fromLocalDate(this.dateAssignedDatePicker.getValue()));
+
+                dm.addCase(newCase);
+
+                this.caseChoiceBox.getItems().add(newCase);
+                this.caseChoiceBox.setValue(newCase);
+
+                this.fillCaseFields(newCase);
+            }
+        });
+
+        this.newClientButton.setOnAction(e -> {
+            String name = this.askName();
+
+            if (name != null)
+            {
+                LClient newClient = new LClient(name);
+
+                dm.addClient(newClient);
+
+                this.clientChoiceBox.getItems().add(newClient);
+                this.clientChoiceBox.setValue(newClient);
+
+                this.fillClientFields(newClient);
+            }
+        });
+
+        this.newCourtButton.setOnAction(e -> {
+            String name = this.askName();
+
+            if (name != null)
+            {
+                LCourt newCourt = new LCourt(name);
+
+                dm.addCourt(newCourt);
+
+                this.courtChoiceBox.getItems().add(newCourt);
+                this.courtChoiceBox.setValue(newCourt);
+
+                this.fillCourtFields(newCourt);
+            }
+        });
+    }
+
+    private String askName()
+    {
+        AskNameController askNameController = new AskNameController();
+
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("askNameView.fxml"));
+        loader.setController(askNameController);
+
+        try
+        {
+            Parent root = loader.load();
+
+            Scene askNameScene = new Scene(root);
+            Stage askNameStage = new Stage();
+
+            askNameStage.setScene(askNameScene);
+            askNameStage.setTitle("Enter name");
+
+            askNameStage.showAndWait();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return askNameController.getName();
     }
 
     public DetailsController(MainController mainController, Document doc, DocumentManager dm)
@@ -198,13 +294,32 @@ public class DetailsController implements Initializable
     public void initialize(URL url, ResourceBundle resources)
     {
         this.initChoiceBoxes();
+        this.initNewButtons();
         this.fillDocumentFields(doc);
 
         this.cancelButton.setOnAction(e -> this.getStage().close());
+
         this.confirmationButton.setOnAction(e -> {
             this.saveChanges();
             this.mainController.refreshDocsDetails();
             this.getStage().close();
         });
+
+        // Using Uluk Biy's answer at https://stackoverflow.com/a/23041348/7970195
+        BooleanBinding dataIsInvalid = new BooleanBinding()
+        {
+            {
+                super.bind(clientEmailTextField.textProperty(), clientPhoneTextField.textProperty());
+            }
+
+            @Override
+            protected boolean computeValue()
+            {
+                return !LClient.validateEmail(clientEmailTextField.getText()) || !LClient.validatePhone(clientPhoneTextField.getText());
+            }
+        };
+
+        this.invalidWarning.visibleProperty().bind(dataIsInvalid);
+        this.confirmationButton.disableProperty().bind(dataIsInvalid);
     }
 }

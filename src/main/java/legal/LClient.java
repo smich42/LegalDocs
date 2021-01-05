@@ -50,8 +50,13 @@ public class LClient implements java.io.Serializable
         }
     }
 
-    public boolean validateEmail(String email)
+    public static boolean validateEmail(String email)
     {
+        if (email == null)
+        {
+            return false;
+        }
+
         EmailValidator validator = EmailValidator.getInstance();
 
         return validator.isValid(email);
@@ -74,8 +79,13 @@ public class LClient implements java.io.Serializable
         }
     }
 
-    public boolean validatePhone(String phone)
+    public static boolean validatePhone(String phone)
     {
+        if (phone == null)
+        {
+            return false;
+        }
+
         char[] phoneChars = phone.toCharArray();
 
         if (phoneChars.length != 10)
