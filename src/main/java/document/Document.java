@@ -1,7 +1,9 @@
 package document;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -10,7 +12,11 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
-import legal.*;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
+import legal.LCase;
+import legal.LClient;
+import legal.LCourt;
 
 public class Document implements java.io.Serializable
 {
@@ -35,13 +41,7 @@ public class Document implements java.io.Serializable
         this.file = file;
 
         // Set the name to the filename if no name is provided
-        String fullname = file.getName();
-        int extensionIndex = fullname.lastIndexOf('.');
-
-        // Remove the extension
-        String noExt = (extensionIndex != -1) ? fullname.substring(0, extensionIndex) : fullname;
-
-        this.setName(noExt);
+        this.setName(filenameNoExt(file));
         this.setCase(lCase);
     }
 
@@ -50,6 +50,24 @@ public class Document implements java.io.Serializable
         this.file = file;
         this.setName(name);
         this.setCase(lCase);
+    }
+
+    public static String filenameNoExt(File file)
+    {
+        String fullname = file.getName();
+        int extensionIndex = fullname.lastIndexOf('.');
+
+        // Remove the extension
+        return (extensionIndex != -1) ? fullname.substring(0, extensionIndex) : fullname;
+    }
+
+    public static String getFileExtension(File file)
+    {
+        String fullname = file.getName();
+        int extensionIndex = fullname.lastIndexOf('.');
+
+        // Return extension
+        return (extensionIndex != -1) ? fullname.substring(extensionIndex, fullname.length()) : "";
     }
 
     public static String replacePunctuation(String S, String replacement)
@@ -121,19 +139,68 @@ public class Document implements java.io.Serializable
         return this.getSerialNameNoExt(serialisationPath) + ".attr";
     }
 
+    private String getFileText() throws IOException
+    {
+        if (getFileExtension(this.file).equals(".pdf"))
+        {
+            return getPDFText(this.file);
+        }
+
+        if (getFileExtension(this.file).equals(".txt"))
+        {
+            StringBuilder fileText = new StringBuilder();
+
+            try (Scanner in = new Scanner(this.file, StandardCharsets.UTF_8))
+            {
+                while (in.hasNext())
+                {
+                    fileText.append(" " + in.next());
+                }
+            }
+
+            return fileText.toString();
+        }
+
+        return "";
+    }
+
+    private String getPDFText(File file)
+    {
+        String fileExtension = getFileExtension(file);
+
+        if (fileExtension.equals(".pdf"))
+        {
+            try
+            {
+                PDDocument doc = PDDocument.load(file);
+                PDFTextStripper pdfStripper = new PDFTextStripper();
+
+                String text = pdfStripper.getText(doc);
+
+                doc.close();
+
+                return text;
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return "";
+    }
+
     public List<String> listTerms(int wordsPerTerm, int offset)
     {
-        // in.useDelimiter(" |\\R");
-
         List<String> terms = new LinkedList<>();
 
-        try (Scanner in = new Scanner(this.file, StandardCharsets.UTF_8))
+        try (InputStream fileTextStream = new ByteArrayInputStream(this.getFileText().getBytes());
+                Scanner in = new Scanner(fileTextStream, StandardCharsets.UTF_8))
         {
             for (int i = 0; i < offset; ++i)
             {
                 if (!in.hasNext())
                 {
-
                     return terms;
                 }
 
