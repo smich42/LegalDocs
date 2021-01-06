@@ -3,11 +3,12 @@ package gui;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import document.Document;
@@ -25,7 +26,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ProgressBar;
@@ -33,14 +36,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
@@ -183,6 +184,8 @@ public class MainController implements Initializable
 
     private void initSearch()
     {
+        searchTextField.setPromptText(searchTextField.getPromptText() + " (" + DocumentMatcher.SEARCH_WORDS_MAX + " words or fewer)");
+
         searchButton.setOnAction(e -> {
             Parent root = mainAnchorPane.getScene().getRoot();
 
@@ -193,21 +196,53 @@ public class MainController implements Initializable
                 try
                 {
                     String S = searchTextField.getText().trim();
+                    char[] charsOfS = Document.replacePunctuation(S, " ").toCharArray();
 
-                    if (S.isEmpty() || S.isBlank())
+                    int wordCount = 1;
+
+                    for (int i = 0; i < charsOfS.length - 1; ++i)
                     {
-                        docsFiltered.setPredicate(x1 -> true);
+                        if (Character.isWhitespace(charsOfS[i]) && !Character.isWhitespace(charsOfS[i + 1]))
+                        {
+                            ++wordCount;
+                        }
+                    }
+
+                    System.out.println(Document.replacePunctuation(S, " "));
+                    System.out.println(wordCount);
+
+                    if (wordCount <= DocumentMatcher.SEARCH_WORDS_MAX)
+                    {
+                        if (S.isEmpty() || S.isBlank())
+                        {
+                            docsFiltered.setPredicate(x1 -> true);
+                        }
+                        else
+                        {
+                            List<Document> matches = dm.searchExactly(S);
+
+                            for (Document doc : matches)
+                            {
+                                System.out.println(doc);
+                            }
+
+                            docsFiltered.setPredicate(matches::contains);
+                        }
                     }
                     else
                     {
-                        List<Document> matches = dm.searchExactly(S);
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(AlertType.ERROR);
 
-                        for (Document doc : matches)
-                        {
-                            System.out.println(doc);
-                        }
+                            alert.setTitle("Search error");
+                            alert.setHeaderText("Please enter fewer than " + (DocumentMatcher.SEARCH_WORDS_MAX + 1) + " words.");
 
-                        docsFiltered.setPredicate(matches::contains);
+                            ButtonType OKButton = new ButtonType("OK", ButtonData.OK_DONE);
+
+                            alert.getButtonTypes().setAll(OKButton);
+
+                            alert.showAndWait();
+                        });
                     }
                 }
                 catch (Exception exception)
@@ -443,17 +478,22 @@ public class MainController implements Initializable
             dirChooser.setTitle("Select folder");
 
             File selected = dirChooser.showDialog(this.getStage());
+            Path dirToAdd = selected.toPath();
 
             if (selected != null)
             {
                 List<Document> docsToAdd = new LinkedList<>();
 
-                for (File f : Objects.requireNonNull(selected.listFiles()))
+                try
                 {
-                    docsToAdd.add(new Document(f));
-                }
+                    Files.walk(dirToAdd).filter(Files::isRegularFile).forEach(f -> docsToAdd.add(new Document(f.toFile())));
 
-                this.addDocsToManager(docsToAdd);
+                    this.addDocsToManager(docsToAdd);
+                }
+                catch (IOException ex)
+                {
+                    ex.printStackTrace();
+                }
             }
         });
     }
