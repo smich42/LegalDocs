@@ -30,7 +30,7 @@
    </rowConstraints>
    <children>
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Name" />
-      <TextField fx:id="docNameTextField" prefHeight="30.0" prefWidth="366.0" GridPane.columnIndex="1" />
+      <TextField fx:id="docNameTextField" prefHeight="30.0" prefWidth="366.0" promptText="Document name" GridPane.columnIndex="1" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Case" GridPane.rowIndex="1" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Client" GridPane.rowIndex="4" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Careful! Changes to the details below affect all case documents." wrappingWidth="364.4140625" GridPane.columnIndex="1" GridPane.rowIndex="3" />
@@ -69,21 +69,21 @@
             <Button fx:id="newCourtButton" mnemonicParsing="false" prefHeight="30.0" prefWidth="60.0" text="New" />
          </children>
       </HBox>
-      <DatePicker fx:id="dateAssignedDatePicker" prefHeight="30.0" prefWidth="220.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+      <DatePicker fx:id="dateAssignedDatePicker" prefHeight="30.0" prefWidth="220.0" promptText="Date assigned" GridPane.columnIndex="1" GridPane.rowIndex="8" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Date assigned" GridPane.rowIndex="8" />
       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
          <children>
-            <TextField fx:id="clientNameTextField" prefHeight="30.0" prefWidth="150.0">
+            <TextField fx:id="clientNameTextField" prefHeight="30.0" prefWidth="150.0" promptText="Client name">
                <HBox.margin>
                   <Insets right="10.0" />
                </HBox.margin>
             </TextField>
-            <TextField fx:id="clientEmailTextField" prefHeight="30.0" prefWidth="150.0">
+            <TextField fx:id="clientEmailTextField" prefHeight="30.0" prefWidth="150.0" promptText="Client email">
                <HBox.margin>
                   <Insets right="10.0" />
                </HBox.margin>
             </TextField>
-            <TextField fx:id="clientPhoneTextField" prefHeight="30.0" prefWidth="150.0" />
+            <TextField fx:id="clientPhoneTextField" prefHeight="30.0" prefWidth="150.0" promptText="Client phone" />
          </children>
       </HBox>
       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
@@ -93,7 +93,7 @@
                   <Insets right="10.0" />
                </HBox.margin>
             </ChoiceBox>
-            <TextField fx:id="courtNameTextField" prefHeight="30.0" prefWidth="150.0">
+            <TextField fx:id="courtNameTextField" prefHeight="30.0" prefWidth="150.0" promptText="Court name">
                <HBox.margin>
                   <Insets right="10.0" />
                </HBox.margin>
@@ -112,7 +112,7 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="476.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
-            <TextField fx:id="caseNameTextField" prefHeight="30.0" prefWidth="150.0">
+            <TextField fx:id="caseNameTextField" prefHeight="30.0" prefWidth="150.0" promptText="Case name">
                <HBox.margin>
                   <Insets right="10.0" />
                </HBox.margin>

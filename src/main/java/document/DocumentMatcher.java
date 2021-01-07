@@ -278,9 +278,7 @@ public class DocumentMatcher
 
         if (curNode.isTerm())
         {
-            Pair<String, Integer> result = new Pair<>(curNode.getTerm(), curRow[curRow.length - 1] // Levenshtein
-                                                                                                   // distance
-            );
+            Pair<String, Integer> result = new Pair<>(curNode.getTerm(), curRow[curRow.length - 1]);
 
             results.add(result);
         }
