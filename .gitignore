@@ -2,4 +2,5 @@
 /target/
 /serial/
 IA.iml
+dependency-reduced-pom.xml
 *.code-workspace

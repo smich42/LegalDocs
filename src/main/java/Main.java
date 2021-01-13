@@ -11,6 +11,11 @@ public class Main extends Application
 {
     private static final DocumentManager dm = new DocumentManager();
 
+    public static void main(String[] args)
+    {
+        launch(args);
+    }
+
     @Override
     public void start(Stage stage) throws Exception
     {
@@ -18,7 +23,7 @@ public class Main extends Application
         MainController mainController = new MainController(dm);
 
         // Load main view, setting controller
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("mainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("mainView.fxml"));
         loader.setController(mainController);
 
         Parent root = loader.load();
@@ -36,13 +41,8 @@ public class Main extends Application
     @Override
     public void stop() throws Exception
     {
-        // Use DocumentManager::close to gracefully
+        // Use DocumentManager::close to exit gracefully
         dm.close();
         super.stop();
-    }
-
-    public static void main(String[] args)
-    {
-        launch(args);
     }
 }
