@@ -3,35 +3,8 @@ package legal;
 public class LCourt implements java.io.Serializable
 {
     private static final long serialVersionUID = 18530754483472595L;
-
-    public enum CourtTypes
-    {
-        UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE;
-
-        @Override
-        public String toString()
-        {
-            switch (this)
-            {
-                case CRIMINAL:
-                    return "Criminal Court";
-
-                case CIVIL:
-                    return "Civil Court";
-
-                case ADMINISTRATIVE:
-                    return "Administrative Court";
-
-                default:
-                case UNSPECIFIED:
-                    return "Unspecified";
-            }
-        }
-    }
-
     private String name;
     private CourtTypes type;
-
     public LCourt(String name)
     {
         this(name, CourtTypes.UNSPECIFIED);
@@ -67,5 +40,22 @@ public class LCourt implements java.io.Serializable
     public String toString()
     {
         return this.name;
+    }
+
+    public enum CourtTypes
+    {
+        UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE;
+
+        @Override
+        public String toString()
+        {
+            return switch (this)
+                    {
+                        case CRIMINAL -> "Criminal Court";
+                        case CIVIL -> "Civil Court";
+                        case ADMINISTRATIVE -> "Administrative Court";
+                        case UNSPECIFIED -> "Unspecified";
+                    };
+        }
     }
 }

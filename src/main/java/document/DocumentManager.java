@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import legal.*;
@@ -27,14 +28,12 @@ public class DocumentManager
 {
     public static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/docs/";
     public static final String SERIALISATION_NAME = "documents";
-
+    private final Set<String> docNames;
+    private final Set<File> docFiles;
+    private final Map<String, LCase> lCases;
+    private final Map<String, LClient> lClients;
+    private final Map<String, LCourt> lCourts;
     private List<Document> docs;
-    private Set<String> docNames;
-    private Set<File> docFiles;
-
-    private Map<String, LCase> lCases;
-    private Map<String, LClient> lClients;
-    private Map<String, LCourt> lCourts;
 
     public DocumentManager()
     {
@@ -62,7 +61,7 @@ public class DocumentManager
 
     public List<Document> search(String searchQuery, int maxDistance)
     {
-        Map<String, List<Document>> results = this.search(new String[] {searchQuery}, maxDistance);
+        Map<String, List<Document>> results = this.search(new String[]{searchQuery}, maxDistance);
 
         if (!results.containsKey(searchQuery))
         {
@@ -121,7 +120,7 @@ public class DocumentManager
             throw new IllegalArgumentException("'" + category.toString() + "': no such LCategory");
         }
 
-        quicksort(sorted, 0, sorted.size() - 1, category);
+        this.quicksort(sorted, 0, sorted.size() - 1, category);
 
         this.docs = sorted;
     }
@@ -130,10 +129,10 @@ public class DocumentManager
     {
         if (l < r)
         {
-            int split = partition(toSort, l, r, category);
+            int split = this.partition(toSort, l, r, category);
 
-            quicksort(toSort, l, split - 1, category);
-            quicksort(toSort, split + 1, r, category);
+            this.quicksort(toSort, l, split - 1, category);
+            this.quicksort(toSort, split + 1, r, category);
         }
     }
 
@@ -304,7 +303,7 @@ public class DocumentManager
 
     public List<LCase> listCases()
     {
-        return Collections.unmodifiableList(new ArrayList<>(this.lCases.values()));
+        return List.copyOf(this.lCases.values());
     }
 
     public void addClient(LClient lClient)
@@ -322,7 +321,7 @@ public class DocumentManager
 
     public List<LClient> listClients()
     {
-        return Collections.unmodifiableList(new ArrayList<>(this.lClients.values()));
+        return List.copyOf(this.lClients.values());
     }
 
     public void addCourt(LCourt lCourt)
@@ -340,7 +339,7 @@ public class DocumentManager
 
     public List<LCourt> listCourts()
     {
-        return Collections.unmodifiableList(new ArrayList<>(this.lCourts.values()));
+        return List.copyOf(this.lCourts.values());
     }
 
     public List<Document> deserialiseDocuments()

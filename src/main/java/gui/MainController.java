@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
 import document.Document;
 import document.DocumentManager;
 import document.DocumentMatcher;
@@ -48,7 +49,7 @@ import legal.LCourt;
 
 public class MainController implements Initializable
 {
-    private DocumentManager dm;
+    private final DocumentManager dm;
     private ObservableList<Document> docsList;
     private FilteredList<Document> docsFiltered;
 
@@ -91,6 +92,14 @@ public class MainController implements Initializable
     @FXML
     private Button searchButton;
 
+    public MainController(DocumentManager dm)
+    {
+        this.dm = dm;
+
+        this.docsList = FXCollections.observableArrayList(dm.listDocuments());
+        this.docsFiltered = new FilteredList<>(this.docsList, x -> true);
+    }
+
     private Stage getStage()
     {
         return (Stage) this.mainAnchorPane.getScene().getWindow();
@@ -98,38 +107,34 @@ public class MainController implements Initializable
 
     private List<Document> getDisplayedDocs()
     {
-        List<Document> displayedDocs = new ArrayList<>();
-
-        for (Document doc : docsFiltered)
-        {
-            displayedDocs.add(doc);
-        }
-
-        return displayedDocs;
+        return new ArrayList<>(this.docsFiltered);
     }
 
     private void initTableView()
     {
         // Based on James_D's answer at https://stackoverflow.com/a/26565887/7970195
-        this.docTableView.setRowFactory(table -> {
+        this.docTableView.setRowFactory(table ->
+        {
             TableRow<Document> row = new TableRow<>();
 
-            row.setOnMouseClicked(event -> {
+            row.setOnMouseClicked(event ->
+            {
                 if (event.getClickCount() == 2 && !row.isEmpty())
                 {
 
                     HostServices hostServices = (HostServices) this.getStage().getProperties().get("hostServices");
 
-                    hostServices.showDocument(row.getItem().getFullPath()); // Open file with defaut programme
+                    hostServices.showDocument(row.getItem().getFullPath()); // Open file with default programme
                 }
             });
 
             return row;
         });
 
-        this.docTableView.setOnMouseClicked(e -> {
-            deleteButton.setDisable(false);
-            detailsButton.setDisable(false);
+        this.docTableView.setOnMouseClicked(e ->
+        {
+            this.deleteButton.setDisable(false);
+            this.detailsButton.setDisable(false);
         });
 
         TableColumn<Document, String> nameCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(0);
@@ -144,31 +149,32 @@ public class MainController implements Initializable
         courtCol.setCellValueFactory(new PropertyValueFactory<>("court"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("dateAssigned"));
 
-        this.docTableView.setItems(docsFiltered);
+        this.docTableView.setItems(this.docsFiltered);
     }
 
     private void initFilter()
     {
-        filterChoiceBox.getItems().addAll("Name", "Case", "Client", "Court");
-        filterChoiceBox.setValue("Name");
+        this.filterChoiceBox.getItems().addAll("Name", "Case", "Client", "Court");
+        this.filterChoiceBox.setValue("Name");
 
-        filterTextField.setOnKeyReleased(e -> {
-            switch (filterChoiceBox.getValue())
+        this.filterTextField.setOnKeyReleased(e ->
+        {
+            switch (this.filterChoiceBox.getValue())
             {
                 case "Name":
-                    docsFiltered.setPredicate(x -> x.getName().toLowerCase().contains(filterTextField.getText().toLowerCase()));
+                    this.docsFiltered.setPredicate(x -> x.getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
                     break;
 
                 case "Case":
-                    docsFiltered.setPredicate(x -> x.getCase().getName().toLowerCase().contains(filterTextField.getText().toLowerCase()));
+                    this.docsFiltered.setPredicate(x -> x.getCase().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
                     break;
 
                 case "Client":
-                    docsFiltered.setPredicate(x -> x.getClient().getName().toLowerCase().contains(filterTextField.getText().toLowerCase()));
+                    this.docsFiltered.setPredicate(x -> x.getClient().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
                     break;
 
                 case "Court":
-                    docsFiltered.setPredicate(x -> x.getCourt().getName().toLowerCase().contains(filterTextField.getText().toLowerCase()));
+                    this.docsFiltered.setPredicate(x -> x.getCourt().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
                     break;
 
                 default:
@@ -176,26 +182,29 @@ public class MainController implements Initializable
             }
         });
 
-        filterChoiceBox.getSelectionModel().selectedItemProperty().addListener((val, prev, next) -> {
-            filterTextField.setText("");
-            docsFiltered.setPredicate(x -> true);
+        this.filterChoiceBox.getSelectionModel().selectedItemProperty().addListener((val, prev, next) ->
+        {
+            this.filterTextField.setText("");
+            this.docsFiltered.setPredicate(x -> true);
         });
     }
 
     private void initSearch()
     {
-        searchTextField.setPromptText(searchTextField.getPromptText() + " (" + DocumentMatcher.SEARCH_WORDS_MAX + " words or fewer)");
+        this.searchTextField.setPromptText(this.searchTextField.getPromptText() + " (" + DocumentMatcher.SEARCH_WORDS_MAX + " words or fewer)");
 
-        searchButton.setOnAction(e -> {
-            Parent root = mainAnchorPane.getScene().getRoot();
+        this.searchButton.setOnAction(e ->
+        {
+            Parent root = this.mainAnchorPane.getScene().getRoot();
 
             root.setCursor(Cursor.WAIT);
 
             // Using Roland's answer at https://stackoverflow.com/a/28206116/7970195 for threading
-            Thread thread = new Thread(() -> {
+            Thread thread = new Thread(() ->
+            {
                 try
                 {
-                    String S = searchTextField.getText().trim();
+                    String S = this.searchTextField.getText().trim();
                     char[] charsOfS = Document.replacePunctuation(S, " ").toCharArray();
 
                     int wordCount = 1;
@@ -215,23 +224,24 @@ public class MainController implements Initializable
                     {
                         if (S.isEmpty() || S.isBlank())
                         {
-                            docsFiltered.setPredicate(x1 -> true);
+                            this.docsFiltered.setPredicate(x1 -> true);
                         }
                         else
                         {
-                            List<Document> matches = dm.search(S);
+                            List<Document> matches = this.dm.search(S);
 
                             for (Document doc : matches)
                             {
                                 System.out.println(doc);
                             }
 
-                            docsFiltered.setPredicate(matches::contains);
+                            this.docsFiltered.setPredicate(matches::contains);
                         }
                     }
                     else
                     {
-                        Platform.runLater(() -> {
+                        Platform.runLater(() ->
+                        {
                             Alert alert = new Alert(AlertType.ERROR);
 
                             alert.setTitle("Search error");
@@ -251,7 +261,7 @@ public class MainController implements Initializable
                 }
                 finally
                 {
-                    Platform.runLater(() -> searchTextField.setText(""));
+                    Platform.runLater(() -> this.searchTextField.setText(""));
                     Platform.runLater(() -> root.setCursor(Cursor.DEFAULT));
                 }
             });
@@ -262,45 +272,47 @@ public class MainController implements Initializable
 
     private void initSort()
     {
-        sortChoiceBox.getItems().addAll("Name sorting", "Case sorting", "Client sorting", "Court sorting", "Date sorting");
-        sortChoiceBox.setValue("Previous sorting");
+        this.sortChoiceBox.getItems().addAll("Name sorting", "Case sorting", "Client sorting", "Court sorting", "Date sorting");
+        this.sortChoiceBox.setValue("Previous sorting");
 
-        sortChoiceBox.setOnAction(e -> {
-            switch (sortChoiceBox.getValue())
+        this.sortChoiceBox.setOnAction(e ->
+        {
+            switch (this.sortChoiceBox.getValue())
             {
                 case "Name sorting":
-                    dm.sortByCategory(Document.class);
+                    this.dm.sortByCategory(Document.class);
                     break;
 
                 case "Case sorting":
-                    dm.sortByCategory(LCase.class);
+                    this.dm.sortByCategory(LCase.class);
                     break;
 
                 case "Client sorting":
-                    dm.sortByCategory(LClient.class);
+                    this.dm.sortByCategory(LClient.class);
                     break;
 
                 case "Court sorting":
-                    dm.sortByCategory(LCourt.class);
+                    this.dm.sortByCategory(LCourt.class);
                     break;
 
                 case "Date sorting":
-                    dm.sortByCategory(Date.class);
+                    this.dm.sortByCategory(Date.class);
                     break;
 
                 default:
                     break;
             }
 
-            refreshFilteredDocs();
+            this.refreshFilteredDocs();
         });
     }
 
     private void initDelete()
     {
-        deleteButton.setDisable(true);
+        this.deleteButton.setDisable(true);
 
-        deleteButton.setOnAction(e -> {
+        this.deleteButton.setOnAction(e ->
+        {
             Document selected = this.docTableView.getSelectionModel().getSelectedItem();
 
             if (selected != null)
@@ -318,39 +330,41 @@ public class MainController implements Initializable
 
                 Optional<ButtonType> result = alert.showAndWait();
 
-                if (result.get() == deleteFileButton)
+                if (result.orElse(null) == deleteFileButton)
                 {
-                    dm.deleteDocumentAndFile(selected);
+                    this.dm.deleteDocumentAndFile(selected);
                 }
-                else if (result.get() == deleteDocumentKeepFileButton)
+                else if (result.orElse(null) == deleteDocumentKeepFileButton)
                 {
-                    dm.deleteDocument(selected);
+                    this.dm.deleteDocument(selected);
                 }
 
-                refreshFilteredDocs();
+                this.refreshFilteredDocs();
             }
         });
     }
 
     private void initDetails()
     {
-        detailsButton.setDisable(true);
+        this.detailsButton.setDisable(true);
 
-        detailsButton.setOnAction(e -> {
+        this.detailsButton.setOnAction(e ->
+        {
             Document selected = this.docTableView.getSelectionModel().getSelectedItem();
 
             if (selected != null)
             {
-                displayDetailsDialog(selected);
+                this.displayDetailsDialog(selected);
 
-                refreshFilteredDocs();
+                this.refreshFilteredDocs();
             }
         });
     }
 
     private void initImportExport()
     {
-        importButton.setOnAction(e -> {
+        this.importButton.setOnAction(e ->
+        {
             FileChooser importFileChooser = new FileChooser();
             importFileChooser.setTitle("Select import file");
 
@@ -360,15 +374,16 @@ public class MainController implements Initializable
 
             if (selected != null)
             {
-                dm.importSerialised(selected);
-                this.addDocsToManager(dm.deserialiseDocuments());
+                this.dm.importSerialised(selected);
+                this.addDocsToManager(this.dm.deserialiseDocuments());
             }
 
             this.refreshDocsDetails();
         });
 
-        exportButton.setOnAction(e -> {
-            if (dm.exportSerialised())
+        this.exportButton.setOnAction(e ->
+        {
+            if (this.dm.exportSerialised())
             {
                 Alert alert = new Alert(AlertType.NONE);
 
@@ -397,7 +412,7 @@ public class MainController implements Initializable
 
     private void addDocsToManager(List<Document> docs)
     {
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("indexingView.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("indexingView.fxml"));
 
         try
         {
@@ -413,27 +428,25 @@ public class MainController implements Initializable
 
             ProgressBar indexingProgressBar = (ProgressBar) indexingScene.lookup("#indexingProgressBar");
 
-            Thread thread = new Thread(() -> {
+            Thread thread = new Thread(() ->
+            {
                 double step = 1.0 / (double) docs.size();
                 double progress = 0.0;
 
                 root.setCursor(Cursor.WAIT);
 
-                if (docs != null)
+                for (Document doc : docs)
                 {
-                    for (Document doc : docs)
+                    indexingProgressBar.setProgress(progress);
+
+                    this.dm.addDocument(doc);
+
+                    if (!DocumentMatcher.hasSerialisedTrieOf(doc))
                     {
-                        indexingProgressBar.setProgress(progress);
-
-                        dm.addDocument(doc);
-
-                        if (!DocumentMatcher.hasSerialisedTrieOf(doc))
-                        {
-                            DocumentMatcher.serialiseTrieOf(doc);
-                        }
-
-                        progress += step;
+                        DocumentMatcher.serialiseTrieOf(doc);
                     }
+
+                    progress += step;
                 }
 
                 Platform.runLater(() -> root.setCursor(Cursor.DEFAULT));
@@ -451,7 +464,8 @@ public class MainController implements Initializable
 
     private void initAddDoc()
     {
-        addDocButton.setOnAction(e -> {
+        this.addDocButton.setOnAction(e ->
+        {
             FileChooser docFileChooser = new FileChooser();
             docFileChooser.setTitle("Select file");
 
@@ -461,9 +475,9 @@ public class MainController implements Initializable
             {
                 Document docToAdd = new Document(selected);
 
-                displayDetailsDialog(docToAdd);
+                this.displayDetailsDialog(docToAdd);
 
-                dm.addDocument(docToAdd);
+                this.dm.addDocument(docToAdd);
                 DocumentMatcher.serialiseTrieOf(docToAdd);
             }
 
@@ -473,27 +487,25 @@ public class MainController implements Initializable
 
     private void initAddDir()
     {
-        addDirButton.setOnAction(e -> {
+        this.addDirButton.setOnAction(e ->
+        {
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Select folder");
 
             File selected = dirChooser.showDialog(this.getStage());
             Path dirToAdd = selected.toPath();
 
-            if (selected != null)
+            List<Document> docsToAdd = new LinkedList<>();
+
+            try
             {
-                List<Document> docsToAdd = new LinkedList<>();
+                Files.walk(dirToAdd).filter(Files::isRegularFile).forEach(f -> docsToAdd.add(new Document(f.toFile())));
 
-                try
-                {
-                    Files.walk(dirToAdd).filter(Files::isRegularFile).forEach(f -> docsToAdd.add(new Document(f.toFile())));
-
-                    this.addDocsToManager(docsToAdd);
-                }
-                catch (IOException ex)
-                {
-                    ex.printStackTrace();
-                }
+                this.addDocsToManager(docsToAdd);
+            }
+            catch (IOException ex)
+            {
+                ex.printStackTrace();
             }
         });
     }
@@ -502,7 +514,7 @@ public class MainController implements Initializable
     {
         DetailsController detailsController = new DetailsController(this, selected, this.dm);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("detailsView.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("detailsView.fxml"));
         loader.setController(detailsController);
 
         try
@@ -525,44 +537,36 @@ public class MainController implements Initializable
 
     public void refreshFilteredDocs()
     {
-        List<Document> displayedDocs = getDisplayedDocs();
+        List<Document> displayedDocs = this.getDisplayedDocs();
 
-        docsList = FXCollections.observableArrayList(dm.listDocuments());
-        docsFiltered = new FilteredList<>(docsList, displayedDocs::contains);
+        this.docsList = FXCollections.observableArrayList(this.dm.listDocuments());
+        this.docsFiltered = new FilteredList<>(this.docsList, displayedDocs::contains);
 
-        this.docTableView.setItems(docsFiltered);
+        this.docTableView.setItems(this.docsFiltered);
     }
 
     public void refreshDocsDetails()
     {
-        docsList.clear();
+        this.docsList.clear();
 
-        docsList = FXCollections.observableArrayList(dm.listDocuments());
-        docsFiltered = new FilteredList<>(docsList, x -> true);
+        this.docsList = FXCollections.observableArrayList(this.dm.listDocuments());
+        this.docsFiltered = new FilteredList<>(this.docsList, x -> true);
 
-        this.docTableView.setItems(docsFiltered);
-    }
-
-    public MainController(DocumentManager dm)
-    {
-        this.dm = dm;
-
-        this.docsList = FXCollections.observableArrayList(dm.listDocuments());
-        this.docsFiltered = new FilteredList<>(docsList, x -> true);
+        this.docTableView.setItems(this.docsFiltered);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resources)
     {
-        initTableView();
+        this.initTableView();
 
-        initFilter();
-        initSearch();
-        initSort();
-        initDelete();
-        initDetails();
-        initImportExport();
-        initAddDoc();
-        initAddDir();
+        this.initFilter();
+        this.initSearch();
+        this.initSort();
+        this.initDelete();
+        this.initDetails();
+        this.initImportExport();
+        this.initAddDoc();
+        this.initAddDir();
     }
 }

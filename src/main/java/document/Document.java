@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import legal.LCase;
@@ -67,7 +68,7 @@ public class Document implements java.io.Serializable
         int extensionIndex = fullname.lastIndexOf('.');
 
         // Return extension
-        return (extensionIndex != -1) ? fullname.substring(extensionIndex, fullname.length()) : "";
+        return (extensionIndex != -1) ? fullname.substring(extensionIndex) : "";
     }
 
     public static String replacePunctuation(String S, String replacement)
@@ -143,7 +144,7 @@ public class Document implements java.io.Serializable
     {
         if (getFileExtension(this.file).equals(".pdf"))
         {
-            return getPDFText(this.file);
+            return this.getPDFText(this.file);
         }
 
         if (getFileExtension(this.file).equals(".txt"))
@@ -154,7 +155,7 @@ public class Document implements java.io.Serializable
             {
                 while (in.hasNext())
                 {
-                    fileText.append(" " + in.next());
+                    fileText.append(" ").append(in.next());
                 }
             }
 
@@ -195,7 +196,7 @@ public class Document implements java.io.Serializable
         List<String> terms = new LinkedList<>();
 
         try (InputStream fileTextStream = new ByteArrayInputStream(this.getFileText().getBytes());
-                Scanner in = new Scanner(fileTextStream, StandardCharsets.UTF_8))
+             Scanner in = new Scanner(fileTextStream, StandardCharsets.UTF_8))
         {
             for (int i = 0; i < offset; ++i)
             {
@@ -222,7 +223,7 @@ public class Document implements java.io.Serializable
                             continue;
                         }
 
-                        toAdd.append(S + " ");
+                        toAdd.append(S).append(" ");
                     }
                     else
                     {

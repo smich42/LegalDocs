@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.ResourceBundle;
+
 import document.Document;
 import document.DocumentManager;
 import javafx.beans.binding.BooleanBinding;
@@ -28,9 +29,9 @@ import legal.LCourt;
 
 public class DetailsController implements Initializable
 {
-    private MainController mainController;
-    private Document doc;
-    private DocumentManager dm;
+    private final MainController mainController;
+    private final Document doc;
+    private final DocumentManager dm;
 
     @FXML
     private TextField docNameTextField;
@@ -83,6 +84,13 @@ public class DetailsController implements Initializable
     @FXML
     private Button cancelButton;
 
+    public DetailsController(MainController mainController, Document doc, DocumentManager dm)
+    {
+        this.mainController = mainController;
+        this.dm = dm;
+        this.doc = doc;
+    }
+
     private static LocalDate toLocalDate(Date date)
     {
         if (date == null)
@@ -112,25 +120,28 @@ public class DetailsController implements Initializable
 
     private void initChoiceBoxes()
     {
-        this.caseChoiceBox.getItems().addAll(dm.listCases());
-        this.clientChoiceBox.getItems().addAll(dm.listClients());
-        this.courtChoiceBox.getItems().addAll(dm.listCourts());
+        this.caseChoiceBox.getItems().addAll(this.dm.listCases());
+        this.clientChoiceBox.getItems().addAll(this.dm.listClients());
+        this.courtChoiceBox.getItems().addAll(this.dm.listCourts());
         this.courtTypeChoiceBox.getItems().addAll(LCourt.CourtTypes.values());
 
         // Using zhujik's answer at https://stackoverflow.com/a/14523434/7970195
-        caseChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
-            LCase selected = caseChoiceBox.getItems().get((Integer) number2);
-            fillCaseFields(selected);
+        this.caseChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
+        {
+            LCase selected = this.caseChoiceBox.getItems().get((Integer) number2);
+            this.fillCaseFields(selected);
         });
 
-        clientChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
-            LClient selected = clientChoiceBox.getItems().get((Integer) number2);
-            fillClientFields(selected);
+        this.clientChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
+        {
+            LClient selected = this.clientChoiceBox.getItems().get((Integer) number2);
+            this.fillClientFields(selected);
         });
 
-        courtChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) -> {
-            LCourt selected = courtChoiceBox.getItems().get((Integer) number2);
-            fillCourtFields(selected);
+        this.courtChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
+        {
+            LCourt selected = this.courtChoiceBox.getItems().get((Integer) number2);
+            this.fillCourtFields(selected);
         });
     }
 
@@ -192,14 +203,14 @@ public class DetailsController implements Initializable
         lCourt.setName(this.courtNameTextField.getText());
 
         lCase.setName(this.caseNameTextField.getText());
-        lCase.setDateAssigned(fromLocalDate(dateAssignedDatePicker.getValue()));
+        lCase.setDateAssigned(fromLocalDate(this.dateAssignedDatePicker.getValue()));
         lCase.setClient(lClient);
         lCase.setCourt(lCourt);
 
         this.doc.setName(this.docNameTextField.getText());
         this.doc.setCase(lCase);
 
-        for (Document curDoc : dm.listDocuments())
+        for (Document curDoc : this.dm.listDocuments())
         {
             if (curDoc.getClient() == this.clientChoiceBox.getValue())
             {
@@ -220,7 +231,8 @@ public class DetailsController implements Initializable
 
     private void initNewButtons()
     {
-        this.newCaseButton.setOnAction(e -> {
+        this.newCaseButton.setOnAction(e ->
+        {
             String name = this.askName();
 
             if (name != null)
@@ -228,7 +240,7 @@ public class DetailsController implements Initializable
                 LCase newCase = new LCase(name, this.courtChoiceBox.getValue(), this.clientChoiceBox.getValue(),
                         fromLocalDate(this.dateAssignedDatePicker.getValue()));
 
-                dm.addCase(newCase);
+                this.dm.addCase(newCase);
 
                 this.caseChoiceBox.getItems().add(newCase);
                 this.caseChoiceBox.setValue(newCase);
@@ -237,14 +249,15 @@ public class DetailsController implements Initializable
             }
         });
 
-        this.newClientButton.setOnAction(e -> {
+        this.newClientButton.setOnAction(e ->
+        {
             String name = this.askName();
 
             if (name != null)
             {
                 LClient newClient = new LClient(name);
 
-                dm.addClient(newClient);
+                this.dm.addClient(newClient);
 
                 this.clientChoiceBox.getItems().add(newClient);
                 this.clientChoiceBox.setValue(newClient);
@@ -253,14 +266,15 @@ public class DetailsController implements Initializable
             }
         });
 
-        this.newCourtButton.setOnAction(e -> {
+        this.newCourtButton.setOnAction(e ->
+        {
             String name = this.askName();
 
             if (name != null)
             {
                 LCourt newCourt = new LCourt(name);
 
-                dm.addCourt(newCourt);
+                this.dm.addCourt(newCourt);
 
                 this.courtChoiceBox.getItems().add(newCourt);
                 this.courtChoiceBox.setValue(newCourt);
@@ -274,7 +288,7 @@ public class DetailsController implements Initializable
     {
         AskNameController askNameController = new AskNameController();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource("askNameView.fxml"));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("askNameView.fxml"));
         loader.setController(askNameController);
 
         try
@@ -297,23 +311,17 @@ public class DetailsController implements Initializable
         return askNameController.getName();
     }
 
-    public DetailsController(MainController mainController, Document doc, DocumentManager dm)
-    {
-        this.mainController = mainController;
-        this.dm = dm;
-        this.doc = doc;
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resources)
     {
         this.initChoiceBoxes();
         this.initNewButtons();
-        this.fillDocumentFields(doc);
+        this.fillDocumentFields(this.doc);
 
         this.cancelButton.setOnAction(e -> this.getStage().close());
 
-        this.confirmationButton.setOnAction(e -> {
+        this.confirmationButton.setOnAction(e ->
+        {
             this.saveChanges();
             this.mainController.refreshDocsDetails();
             this.getStage().close();
@@ -323,14 +331,14 @@ public class DetailsController implements Initializable
         BooleanBinding dataIsInvalid = new BooleanBinding()
         {
             {
-                super.bind(clientEmailTextField.textProperty(), clientPhoneTextField.textProperty());
+                super.bind(DetailsController.this.clientEmailTextField.textProperty(), DetailsController.this.clientPhoneTextField.textProperty());
             }
 
             @Override
             protected boolean computeValue()
             {
-                String email = clientEmailTextField.getText();
-                String phone = clientPhoneTextField.getText();
+                String email = DetailsController.this.clientEmailTextField.getText();
+                String phone = DetailsController.this.clientPhoneTextField.getText();
 
                 // Allow confirmation button if no email/phone is entered and disable if at least one is invalid
                 boolean emailInvalid = (email != null) && (!email.isBlank()) && (!LClient.validateEmail(email));
@@ -344,13 +352,13 @@ public class DetailsController implements Initializable
         this.confirmationButton.disableProperty().bind(dataIsInvalid);
 
         // Using Johan Kaewberg's answer at https://stackoverflow.com/a/53186959/7970195
-        dateAssignedDatePicker.setDayCellFactory(d -> new DateCell()
+        this.dateAssignedDatePicker.setDayCellFactory(d -> new DateCell()
         {
             @Override
             public void updateItem(LocalDate item, boolean empty)
             {
                 super.updateItem(item, empty);
-                setDisable(item.isAfter(LocalDate.now()));
+                this.setDisable(item.isAfter(LocalDate.now()));
             }
         });
     }

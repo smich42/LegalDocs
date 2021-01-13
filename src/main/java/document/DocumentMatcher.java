@@ -15,7 +15,7 @@ import java.util.Map;
 public class DocumentMatcher
 {
     public static final int SEARCH_WORDS_MAX = 2;
-    public static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/matchers/";
+    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "/Downloads/serial/matchers/";
 
     List<Node> nodes;
 
@@ -40,12 +40,9 @@ public class DocumentMatcher
     public static List<Node> deserialiseTrieOf(Document doc)
     {
         String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
-        String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         try (InputStream fSer = new FileInputStream(serialName);
-                FSTObjectInput inSer = new FSTObjectInput(fSer);
-                FileInputStream fAttrs = new FileInputStream(attrsName);
-                DataInputStream inAttrs = new DataInputStream(fAttrs))
+             FSTObjectInput inSer = new FSTObjectInput(fSer))
         {
             if (hasSerialisedTrieOf(doc))
             {
@@ -74,10 +71,8 @@ public class DocumentMatcher
 
         if (serialFile.exists() && attrsFile.exists())
         {
-            try (InputStream fSer = new FileInputStream(serialName);
-                    FSTObjectInput inSer = new FSTObjectInput(fSer);
-                    FileInputStream fAttrs = new FileInputStream(attrsName);
-                    DataInputStream inAttrs = new DataInputStream(fAttrs))
+            try (FileInputStream fAttrs = new FileInputStream(attrsName);
+                 DataInputStream inAttrs = new DataInputStream(fAttrs))
             {
                 return (doc.getDateModified() == inAttrs.readLong()) && (SEARCH_WORDS_MAX <= inAttrs.readInt());
             }
@@ -111,9 +106,9 @@ public class DocumentMatcher
         String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         try (OutputStream fSer = new FileOutputStream(serialName, false);
-                FSTObjectOutput outSer = new FSTObjectOutput(fSer);
-                OutputStream fAttrs = new FileOutputStream(attrsName, false);
-                DataOutputStream outAttrs = new DataOutputStream(fAttrs))
+             FSTObjectOutput outSer = new FSTObjectOutput(fSer);
+             OutputStream fAttrs = new FileOutputStream(attrsName, false);
+             DataOutputStream outAttrs = new DataOutputStream(fAttrs))
         {
             DocumentMatcher toSerialise = new DocumentMatcher();
             toSerialise.buildTrie(doc);
@@ -269,7 +264,7 @@ public class DocumentMatcher
 
                 curRow[i] = Math.min(Math.min(prevRow[i] + 1, // Deletion
                         curRow[i - 1] + 1 // Insertion
-                ), prevRow[i - 1] + subCost // Substitution
+                        ), prevRow[i - 1] + subCost // Substitution
                 );
             }
         }
