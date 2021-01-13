@@ -25,8 +25,8 @@ import legal.*;
 
 public class DocumentManager
 {
-    static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/docs/";
-    static final String SERIALISATION_NAME = "documents";
+    public static final String SERIALISATION_PATH = "C:/Users/stavr/Downloads/serial/docs/";
+    public static final String SERIALISATION_NAME = "documents";
 
     private List<Document> docs;
     private Set<String> docNames;

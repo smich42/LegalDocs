@@ -219,7 +219,7 @@ public class MainController implements Initializable
                         }
                         else
                         {
-                            List<Document> matches = dm.searchExactly(S);
+                            List<Document> matches = dm.search(S);
 
                             for (Document doc : matches)
                             {

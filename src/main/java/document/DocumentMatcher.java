@@ -157,7 +157,7 @@ public class DocumentMatcher
         }
     }
 
-    public void buildTrie(Document doc)
+    private void buildTrie(Document doc)
     {
         this.nodes = new ArrayList<>();
 
@@ -176,7 +176,7 @@ public class DocumentMatcher
         }
     }
 
-    public Node getNode(int index)
+    private Node getNode(int index)
     {
         return this.nodes.get(index);
     }
@@ -293,7 +293,7 @@ public class DocumentMatcher
         return results;
     }
 
-    public void insert(String term)
+    private void insert(String term)
     {
         term = Document.removePunctuation(term.toLowerCase());
 

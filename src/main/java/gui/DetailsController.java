@@ -329,7 +329,14 @@ public class DetailsController implements Initializable
             @Override
             protected boolean computeValue()
             {
-                return !LClient.validateEmail(clientEmailTextField.getText()) || !LClient.validatePhone(clientPhoneTextField.getText());
+                String email = clientEmailTextField.getText();
+                String phone = clientPhoneTextField.getText();
+
+                // Allow confirmation button if no email/phone is entered and disable if at least one is invalid
+                boolean emailInvalid = (email != null) && (!email.isBlank()) && (!LClient.validateEmail(email));
+                boolean phoneInvalid = (phone != null) && (!phone.isBlank()) && (!LClient.validatePhone(phone));
+
+                return emailInvalid || phoneInvalid;
             }
         };
 

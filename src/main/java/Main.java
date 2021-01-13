@@ -14,8 +14,10 @@ public class Main extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        // Create instance of main controller
         MainController mainController = new MainController(dm);
 
+        // Load main view, setting controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("mainView.fxml"));
         loader.setController(mainController);
 
@@ -26,6 +28,7 @@ public class Main extends Application
         stage.getIcons().add(new Image("logo.png"));
         stage.getProperties().put("hostServices", this.getHostServices());
 
+        // Display main scene
         stage.setScene(scene);
         stage.show();
     }
@@ -33,13 +36,13 @@ public class Main extends Application
     @Override
     public void stop() throws Exception
     {
+        // Use DocumentManager::close to gracefully
         dm.close();
         super.stop();
     }
 
     public static void main(String[] args)
     {
-        // Utilities.addWikiDocuments(dm);
         launch(args);
     }
 }
