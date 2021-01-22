@@ -1,51 +1,58 @@
 package document;
 
 import javafx.util.Pair;
-
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+/*
+ * Responsibilities:
+ * - Represents a trie searchable with Levenshtein distance
+ */
 
 public class DocumentMatcher
 {
+    // Maximum words per search string
     public static final int SEARCH_WORDS_MAX = 2;
-    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "/Downloads/serial/matchers/";
+    // Path for serialised tries
+    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "\\Downloads\\serial\\matchers\\";
 
+    // Trie nodes
     List<Node> nodes;
 
     public DocumentMatcher()
     {
+        // Prefer ArrayList implementation for List because of quick indexing
         this.nodes = new ArrayList<>();
     }
 
     public DocumentMatcher(Document doc)
     {
-        List<Node> deserialisedNodes = deserialiseTrieOf(doc);
-
-        if (deserialisedNodes == null)
+        // Rebuild if not up-to-date
+        if (!upToDateSerialisedTrieExists(doc))
         {
             serialiseTrieOf(doc);
-            deserialisedNodes = deserialiseTrieOf(doc);
         }
 
-        this.nodes = deserialisedNodes;
+        // Document is now guaranteed to have been serialised successfully
+        this.nodes = deserialiseTrieOf(doc);
     }
 
+    /* Restores pre-built DocumentMatcher object if serialised and up-to-date */
     public static List<Node> deserialiseTrieOf(Document doc)
     {
+        // Full name for serialised file
         String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
 
         try (InputStream fSer = new FileInputStream(serialName);
              FSTObjectInput inSer = new FSTObjectInput(fSer))
         {
-            if (hasSerialisedTrieOf(doc))
+            // Only deserialise if trie is up-to-date
+            if (upToDateSerialisedTrieExists(doc))
             {
+                // Deserialise
                 List<Node> dser = (List<Node>) inSer.readObject();
 
                 System.out.println("Recovered serialised trie for '" + doc.getName() + "'");
@@ -58,22 +65,28 @@ public class DocumentMatcher
             e.printStackTrace();
         }
 
+        // Null serialised trie could not be recovered
         return null;
     }
 
-    public static boolean hasSerialisedTrieOf(Document doc)
+    /* Checks if a serialised trie for a document exists and is up-to-date */
+    public static boolean upToDateSerialisedTrieExists(Document doc)
     {
+        // Full filenames for serialised trie file and serialised attributes file
         String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
         String attrsName = doc.getSerialAttributesFilename(SERIALISATION_PATH) + "_DM";
 
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);
 
+        // First condition: serialised trie and attributes files exist
         if (serialFile.exists() && attrsFile.exists())
         {
             try (FileInputStream fAttrs = new FileInputStream(attrsName);
                  DataInputStream inAttrs = new DataInputStream(fAttrs))
             {
+                // Second condition: date of file when serialised is the same as the current date of the file
+                // Third condition: words per term for serialised trie is at least DocumentMatcher.SEARCH_WORDS_MAX
                 return (doc.getDateModified() == inAttrs.readLong()) && (SEARCH_WORDS_MAX <= inAttrs.readInt());
             }
             catch (IOException e)
@@ -85,10 +98,17 @@ public class DocumentMatcher
         return false;
     }
 
+    /* Serialises the trie of a Document, if it does not already exist and is up-to-date */
     public static void serialiseTrieOf(Document doc)
     {
+        if (upToDateSerialisedTrieExists(doc))
+        {
+            return;
+        }
+
         File serialPath = new File(SERIALISATION_PATH);
 
+        // Make serialisation directory if it does not already exist
         if (!serialPath.exists())
         {
             if (serialPath.mkdirs())
@@ -110,10 +130,14 @@ public class DocumentMatcher
              OutputStream fAttrs = new FileOutputStream(attrsName, false);
              DataOutputStream outAttrs = new DataOutputStream(fAttrs))
         {
+            // Create trie to be serialised
             DocumentMatcher toSerialise = new DocumentMatcher();
             toSerialise.buildTrie(doc);
 
+            // Serialise trie
             outSer.writeObject(toSerialise.nodes);
+
+            // Serialise attributes file with information allowing easy checking of whether the trie is up-to-date
             outAttrs.writeLong(doc.getDateModified());
             outAttrs.writeInt(SEARCH_WORDS_MAX);
 
@@ -125,6 +149,7 @@ public class DocumentMatcher
         }
     }
 
+    /* Deletes serialised trie for a Document, if it exists*/
     public static void deleteSerialisedTrie(Document doc)
     {
         String serialName = doc.getSerialFilename(SERIALISATION_PATH) + "_DM";
@@ -133,8 +158,10 @@ public class DocumentMatcher
         File serialFile = new File(serialName);
         File attrsFile = new File(attrsName);
 
+        // Try to delete trie file
         if (serialFile.delete())
         {
+            // Success
             System.out.println("Deleted serialised trie for '" + doc.getName() + "'");
         }
         else
@@ -142,8 +169,10 @@ public class DocumentMatcher
             System.out.println("Failed to delete serialised trie for '" + doc.getName() + "'");
         }
 
+        // Try to delete attributes file
         if (attrsFile.delete())
         {
+            // Success
             System.out.println("Deleted trie date file for '" + doc.getName() + "'");
         }
         else
@@ -152,17 +181,20 @@ public class DocumentMatcher
         }
     }
 
+    /* Builds the trie using a Document */
     private void buildTrie(Document doc)
     {
         this.nodes = new ArrayList<>();
 
-        Node root = new Node('\0');
+        Node root = new Node('\0'); // Root does not have a value
         this.nodes.add(root);
 
+        // First two nested loops for every possible wordsPerTerm and offset combination
         for (int wordsPerTerm = 1; wordsPerTerm <= SEARCH_WORDS_MAX; ++wordsPerTerm)
         {
             for (int offset = 0; offset < wordsPerTerm; ++offset)
             {
+                // For this combination of wordsPerTerm and offset, insert all terms in a document to the trie
                 for (String term : doc.listTerms(wordsPerTerm, offset))
                 {
                     this.insert(term);
@@ -171,17 +203,21 @@ public class DocumentMatcher
         }
     }
 
+    /* Returns the node at an index of the Node list */
     private Node getNode(int index)
     {
         return this.nodes.get(index);
     }
 
+    /* Returns the Levenshtein (edit) distance of the closest fuzzy match to the "pattern" string */
     private int findMinDistance(String pattern)
     {
+        // Compute the Levenshtein distances for a "subtree" starting from the root, i.e. the full trie.
         ArrayList<Pair<String, Integer>> patternDistances = this.computeSubtree(this.getNode(0), pattern, new int[0]);
 
         int min = Integer.MAX_VALUE;
 
+        // Iterate over all pairs of terms and distances to find min distance
         for (Pair<String, Integer> p : patternDistances)
         {
             if (p.getValue() < min)
@@ -193,19 +229,25 @@ public class DocumentMatcher
         return min;
     }
 
+    /* Returns true if term is in the trie, false otherwise */
     public boolean contains(String term)
     {
+        // Terms in trie do not have punctuation
+        // To lowercase for case insensitivity
         term = Document.removePunctuation(term.toLowerCase());
 
+        // Immediately return true if pattern is empty
         if (term.isBlank() || term.isEmpty())
         {
-            return false;
+            return true;
         }
 
         Node cur = this.getNode(0);
 
+        // Try to follow path of characters of string term
         for (char c : term.toCharArray())
         {
+            // If the path cannot be continued, term is not in the trie
             if (!cur.hasChild(c))
             {
                 return false;
@@ -214,16 +256,23 @@ public class DocumentMatcher
             cur = this.getNode(cur.getChild(c));
         }
 
+        // Successfully followed path
         return true;
     }
 
+    /*
+     * Returns true if the minimum Levenshtein distance of the pattern for this trie
+     * is less than or equal to maxDistance
+     */
     public boolean matches(String pattern, int maxDistance)
     {
+        // Immediately return true if pattern is empty
         if (pattern.isBlank() || pattern.isEmpty())
         {
-            return false;
+            return true;
         }
 
+        // No need to run fuzzy search if maxDistance = 0
         if (maxDistance == 0)
         {
             return this.contains(pattern);
@@ -234,6 +283,7 @@ public class DocumentMatcher
         return this.findMinDistance(pattern) <= maxDistance;
     }
 
+    /* Computes the Levenshtein distances for a "subtree" starting from curNode  */
     private ArrayList<Pair<String, Integer>> computeSubtree(Node curNode, String pattern, int[] prevRow)
     {
         int[] curRow = new int[pattern.length() + 1];
@@ -251,7 +301,7 @@ public class DocumentMatcher
         {
             curRow[0] = prevRow[0] + 1;
 
-            // Make matching non-case-sensitive
+            // To lowercase to make matching non-case-sensitive
             char currentPos = Character.toLowerCase(curNode.getVal());
 
             for (int i = 1; i <= pattern.length(); ++i)
@@ -271,6 +321,7 @@ public class DocumentMatcher
 
         ArrayList<Pair<String, Integer>> results = new ArrayList<>();
 
+        // Only add to results if the current node contains a term, i.e. is a leaf node
         if (curNode.isTerm())
         {
             Pair<String, Integer> result = new Pair<>(curNode.getTerm(), curRow[curRow.length - 1]);
@@ -288,6 +339,7 @@ public class DocumentMatcher
         return results;
     }
 
+    /* Inserts a term to the trie */
     private void insert(String term)
     {
         term = Document.removePunctuation(term.toLowerCase());
@@ -311,14 +363,19 @@ public class DocumentMatcher
             cur = this.getNode(cur.getChild(c));
         }
 
-        cur.addTerm(term);
+        cur.setTerm(term);
     }
 
+    /*
+     * Responsibilities:
+     *   - Represents trie nodes.
+     */
     private static class Node implements java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
+        @Serial
+        private static final long serialVersionUID = 4250386998186331854L;
 
-        // Slightly unconventional node structure;
+        // Unconventional node structure for a trie;
         // Characters saved in the nodes--edges have no values
         private final Map<Character, Integer> children;
         private final char val;
@@ -331,26 +388,31 @@ public class DocumentMatcher
             this.children = new HashMap<>();
         }
 
+        /* Accessor for value field */
         public char getVal()
         {
             return this.val;
         }
 
+        /* Checks if this Node is a term (leaf) node */
         public boolean isTerm()
         {
             return this.term != null;
         }
 
-        public void addTerm(String term)
-        {
-            this.term = term;
-        }
-
+        /* Returns the term of a node */
         public String getTerm()
         {
             return this.term;
         }
 
+        /* Sets the term for a node */
+        public void setTerm(String term)
+        {
+            this.term = term;
+        }
+
+        /* Connects this Node to a child node */
         public void addChild(Node child, int childIndex)
         {
             // Only add the child node only if there is no other child
@@ -361,11 +423,13 @@ public class DocumentMatcher
             }
         }
 
+        /* Checks if this Node leads to another Node of some value */
         public boolean hasChild(char val)
         {
             return this.children.containsKey(val);
         }
 
+        /* Returns the child Node of some value, if it exists */
         public int getChild(char val)
         {
             if (this.hasChild(val))
@@ -376,6 +440,7 @@ public class DocumentMatcher
             return -1;
         }
 
+        /* Returns all the children Nodes */
         public Collection<Integer> getChildren()
         {
             return this.children.values();

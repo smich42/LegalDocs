@@ -7,6 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+/*
+ * Responsibilities:
+ * - Application startup.
+ * - Shows main view.
+ * - Opens and closes DocumentManager instance.
+ */
+
 public class Main extends Application
 {
     private static final DocumentManager dm = new DocumentManager();
@@ -22,13 +29,14 @@ public class Main extends Application
         // Create instance of main controller
         MainController mainController = new MainController(dm);
 
-        // Load main view, setting controller
+        // Load main view and set controller
         FXMLLoader loader = new FXMLLoader(this.getClass().getResource("mainView.fxml"));
         loader.setController(mainController);
 
         Parent root = loader.load();
         Scene scene = new Scene(root, 900, 640);
 
+        // Set stage properties
         stage.setTitle("Legal document browser");
         stage.getIcons().add(new Image("logo.png"));
         stage.getProperties().put("hostServices", this.getHostServices());

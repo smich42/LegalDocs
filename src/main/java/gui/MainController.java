@@ -1,22 +1,11 @@
 package gui;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
 import document.Document;
 import document.DocumentManager;
 import document.DocumentMatcher;
 import javafx.application.HostServices;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -26,17 +15,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
@@ -47,12 +28,27 @@ import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+/*
+ * Responsibilities:
+ * - Controls main view.
+ * - Initialises JavaFX controls.
+ */
+
 public class MainController implements Initializable
 {
     private final DocumentManager dm;
+
     private ObservableList<Document> docsList;
     private FilteredList<Document> docsFiltered;
 
+    /* FXML bindings */
     @FXML
     private AnchorPane mainAnchorPane;
 
@@ -100,41 +96,39 @@ public class MainController implements Initializable
         this.docsFiltered = new FilteredList<>(this.docsList, x -> true);
     }
 
+    /* Returns stage for main view */
     private Stage getStage()
     {
         return (Stage) this.mainAnchorPane.getScene().getWindow();
     }
 
+    /* Returns documents currently displayed in TableView */
     private List<Document> getDisplayedDocs()
     {
+        // Return by value for immutability
         return new ArrayList<>(this.docsFiltered);
     }
 
+    /* Initialises the TableView of documents */
     private void initTableView()
     {
         // Based on James_D's answer at https://stackoverflow.com/a/26565887/7970195
-        this.docTableView.setRowFactory(table ->
+        this.docTableView.setRowFactory(e ->
         {
             TableRow<Document> row = new TableRow<>();
 
+            // Catch double-click event
             row.setOnMouseClicked(event ->
             {
+                // Require two clicks on a non-empty row of the table
                 if (event.getClickCount() == 2 && !row.isEmpty())
                 {
-
                     HostServices hostServices = (HostServices) this.getStage().getProperties().get("hostServices");
-
                     hostServices.showDocument(row.getItem().getFullPath()); // Open file with default programme
                 }
             });
 
             return row;
-        });
-
-        this.docTableView.setOnMouseClicked(e ->
-        {
-            this.deleteButton.setDisable(false);
-            this.detailsButton.setDisable(false);
         });
 
         TableColumn<Document, String> nameCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(0);
@@ -143,17 +137,21 @@ public class MainController implements Initializable
         TableColumn<Document, String> courtCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(3);
         TableColumn<Document, String> dateCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(4);
 
+        // Bind values in table columns to Document attributes
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         caseCol.setCellValueFactory(new PropertyValueFactory<>("case"));
         clientCol.setCellValueFactory(new PropertyValueFactory<>("client"));
         courtCol.setCellValueFactory(new PropertyValueFactory<>("court"));
         dateCol.setCellValueFactory(new PropertyValueFactory<>("dateAssigned"));
 
+        // Set docsFiltered as the source for the table data
         this.docTableView.setItems(this.docsFiltered);
     }
 
+    /* Initialises filtering controls */
     private void initFilter()
     {
+        // User can filter by Name, Case, Client or Court
         this.filterChoiceBox.getItems().addAll("Name", "Case", "Client", "Court");
         this.filterChoiceBox.setValue("Name");
 
@@ -161,6 +159,8 @@ public class MainController implements Initializable
         {
             switch (this.filterChoiceBox.getValue())
             {
+                // Modify filter to match documents for which category name contains the filter text
+                // Not case sensitive
                 case "Name":
                     this.docsFiltered.setPredicate(x -> x.getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
                     break;
@@ -182,13 +182,17 @@ public class MainController implements Initializable
             }
         });
 
+        // Catch filter category change
         this.filterChoiceBox.getSelectionModel().selectedItemProperty().addListener((val, prev, next) ->
         {
+            // Reset filter text
             this.filterTextField.setText("");
+            // Reset filter to match all documents
             this.docsFiltered.setPredicate(x -> true);
         });
     }
 
+    /* Initialises searching controls */
     private void initSearch()
     {
         this.searchTextField.setPromptText(this.searchTextField.getPromptText() + " (" + DocumentMatcher.SEARCH_WORDS_MAX + " words or fewer)");
@@ -196,50 +200,46 @@ public class MainController implements Initializable
         this.searchButton.setOnAction(e ->
         {
             Parent root = this.mainAnchorPane.getScene().getRoot();
-
             root.setCursor(Cursor.WAIT);
 
-            // Using Roland's answer at https://stackoverflow.com/a/28206116/7970195 for threading
+            // Adapted from Roland's answer at https://stackoverflow.com/a/28206116/7970195
+            // Run search in new thread
             Thread thread = new Thread(() ->
             {
                 try
                 {
+                    // Trim whitespace at end and start of text
                     String S = this.searchTextField.getText().trim();
+
+                    // Replace punctuation with spaces and convert to char array
                     char[] charsOfS = Document.replacePunctuation(S, " ").toCharArray();
 
                     int wordCount = 1;
 
                     for (int i = 0; i < charsOfS.length - 1; ++i)
                     {
+                        // Prevent increasing word count multiple times for input such as "word1   word2"
                         if (Character.isWhitespace(charsOfS[i]) && !Character.isWhitespace(charsOfS[i + 1]))
                         {
                             ++wordCount;
                         }
                     }
 
-                    System.out.println(Document.replacePunctuation(S, " "));
-                    System.out.println(wordCount);
-
+                    // Run search only if the word count does not exceed the maximum allowed
                     if (wordCount <= DocumentMatcher.SEARCH_WORDS_MAX)
                     {
-                        if (S.isEmpty() || S.isBlank())
-                        {
-                            this.docsFiltered.setPredicate(x1 -> true);
-                        }
-                        else
-                        {
-                            List<Document> matches = this.dm.search(S);
+                        List<Document> matches = this.dm.search(S);
 
-                            for (Document doc : matches)
-                            {
-                                System.out.println(doc);
-                            }
-
-                            this.docsFiltered.setPredicate(matches::contains);
+                        for (Document doc : matches)
+                        {
+                            System.out.println(doc);
                         }
+
+                        this.docsFiltered.setPredicate(matches::contains);
                     }
                     else
                     {
+                        // Display alert dialogue if the word count exceeds the maximum allowed
                         Platform.runLater(() ->
                         {
                             Alert alert = new Alert(AlertType.ERROR);
@@ -261,7 +261,9 @@ public class MainController implements Initializable
                 }
                 finally
                 {
+                    // Empty search text
                     Platform.runLater(() -> this.searchTextField.setText(""));
+                    // Reset cursor
                     Platform.runLater(() -> root.setCursor(Cursor.DEFAULT));
                 }
             });
@@ -270,9 +272,14 @@ public class MainController implements Initializable
         });
     }
 
+    /* Initialises sorting controls */
     private void initSort()
     {
-        this.sortChoiceBox.getItems().addAll("Name sorting", "Case sorting", "Client sorting", "Court sorting", "Date sorting");
+        this.sortChoiceBox.getItems().addAll("Name sorting",
+                "Case sorting",
+                "Client sorting",
+                "Court sorting",
+                "Date sorting");
         this.sortChoiceBox.setValue("Previous sorting");
 
         this.sortChoiceBox.setOnAction(e ->
@@ -307,22 +314,24 @@ public class MainController implements Initializable
         });
     }
 
+    /* Initialises document deletion controls */
     private void initDelete()
     {
-        this.deleteButton.setDisable(true);
-
         this.deleteButton.setOnAction(e ->
         {
             Document selected = this.docTableView.getSelectionModel().getSelectedItem();
 
             if (selected != null)
             {
+                // Set up deletion dialogue
                 Alert alert = new Alert(AlertType.NONE);
 
                 alert.setTitle("Document deletion");
                 alert.setHeaderText("Choose a way to delete '" + selected.getName() + ".'");
 
-                ButtonType deleteDocumentKeepFileButton = new ButtonType("Delete document and keep file");
+                // User can choose to either remove the document from the DocumentManager
+                // or to delete both it and the associated file
+                ButtonType deleteDocumentKeepFileButton = new ButtonType("Remove document (keeps file)");
                 ButtonType deleteFileButton = new ButtonType("Delete file");
                 ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 
@@ -336,7 +345,7 @@ public class MainController implements Initializable
                 }
                 else if (result.orElse(null) == deleteDocumentKeepFileButton)
                 {
-                    this.dm.deleteDocument(selected);
+                    this.dm.removeDocument(selected);
                 }
 
                 this.refreshFilteredDocs();
@@ -344,32 +353,34 @@ public class MainController implements Initializable
         });
     }
 
+    /* Initialises details controls */
     private void initDetails()
     {
-        this.detailsButton.setDisable(true);
-
         this.detailsButton.setOnAction(e ->
         {
             Document selected = this.docTableView.getSelectionModel().getSelectedItem();
 
             if (selected != null)
             {
-                this.displayDetailsDialog(selected);
+                this.displayDetailsDialogue(selected);
 
                 this.refreshFilteredDocs();
             }
         });
     }
 
+    /* Initialises import/export buttons */
     private void initImportExport()
     {
         this.importButton.setOnAction(e ->
         {
+            // Prompt user to choose the file to be imported
             FileChooser importFileChooser = new FileChooser();
-            importFileChooser.setTitle("Select import file");
+            importFileChooser.setTitle("Select configuration file");
 
             importFileChooser.getExtensionFilters().add(new ExtensionFilter("Legal document config", "*.serl_DOCS"));
 
+            // Display dialogue and assign selected file
             File selected = importFileChooser.showOpenDialog(this.getStage());
 
             if (selected != null)
@@ -385,6 +396,7 @@ public class MainController implements Initializable
         {
             if (this.dm.exportSerialised())
             {
+                // Set up dialogue notifying user of successful exporting
                 Alert alert = new Alert(AlertType.NONE);
 
                 alert.setTitle("Configuration exported");
@@ -393,10 +405,13 @@ public class MainController implements Initializable
                 ButtonType okButton = new ButtonType("OK", ButtonData.OK_DONE);
 
                 alert.getButtonTypes().setAll(okButton);
+
+                // Display dialogue and wait for user to click "OK"
                 alert.showAndWait();
             }
             else
             {
+                // Set up dialogue notifying user of exporting error
                 Alert alert = new Alert(AlertType.ERROR);
 
                 alert.setTitle("Configuration not exported");
@@ -410,8 +425,10 @@ public class MainController implements Initializable
         });
     }
 
+    /* Handles adding documents to manager and displays a progress bar for search indexing */
     private void addDocsToManager(List<Document> docs)
     {
+        // Load indexing view
         FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("indexingView.fxml"));
 
         try
@@ -430,22 +447,20 @@ public class MainController implements Initializable
 
             Thread thread = new Thread(() ->
             {
-                double step = 1.0 / (double) docs.size();
                 double progress = 0.0;
+
+                // How much progress the bar should record for every serialised ("indexed") document
+                double step = 1.0 / (double) docs.size();
 
                 root.setCursor(Cursor.WAIT);
 
+                // Serialise documents added
                 for (Document doc : docs)
                 {
+                    this.dm.addAndSerialiseDocument(doc);
+
                     indexingProgressBar.setProgress(progress);
-
-                    this.dm.addDocument(doc);
-
-                    if (!DocumentMatcher.hasSerialisedTrieOf(doc))
-                    {
-                        DocumentMatcher.serialiseTrieOf(doc);
-                    }
-
+                    // Increment current progress
                     progress += step;
                 }
 
@@ -462,10 +477,12 @@ public class MainController implements Initializable
         }
     }
 
+    /* Initialises document creation button */
     private void initAddDoc()
     {
         this.addDocButton.setOnAction(e ->
         {
+            // Prompt user to select a file
             FileChooser docFileChooser = new FileChooser();
             docFileChooser.setTitle("Select file");
 
@@ -475,20 +492,19 @@ public class MainController implements Initializable
             {
                 Document docToAdd = new Document(selected);
 
-                this.displayDetailsDialog(docToAdd);
-
-                this.dm.addDocument(docToAdd);
-                DocumentMatcher.serialiseTrieOf(docToAdd);
+                this.displayDetailsDialogue(docToAdd);
             }
 
             this.refreshDocsDetails();
         });
     }
 
+    /* Initialises auto-add button */
     private void initAddDir()
     {
         this.addDirButton.setOnAction(e ->
         {
+            // Prompt user to select directory
             DirectoryChooser dirChooser = new DirectoryChooser();
             dirChooser.setTitle("Select folder");
 
@@ -499,6 +515,7 @@ public class MainController implements Initializable
 
             try
             {
+                // Create documents for all files in directories and sub-directories
                 Files.walk(dirToAdd).filter(Files::isRegularFile).forEach(f -> docsToAdd.add(new Document(f.toFile())));
 
                 this.addDocsToManager(docsToAdd);
@@ -510,10 +527,12 @@ public class MainController implements Initializable
         });
     }
 
-    private void displayDetailsDialog(Document selected)
+    /* Displays dialogue */
+    private void displayDetailsDialogue(Document selected)
     {
         DetailsController detailsController = new DetailsController(this, selected, this.dm);
 
+        // Load details view and set controller
         FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("detailsView.fxml"));
         loader.setController(detailsController);
 
@@ -527,6 +546,7 @@ public class MainController implements Initializable
             dialogStage.setScene(dialogScene);
             dialogStage.setTitle("Document details");
 
+            // Display details view and wait for user response
             dialogStage.showAndWait();
         }
         catch (IOException e)
@@ -535,6 +555,7 @@ public class MainController implements Initializable
         }
     }
 
+    /* Refreshes the displayed filtered document table */
     public void refreshFilteredDocs()
     {
         List<Document> displayedDocs = this.getDisplayedDocs();
@@ -545,6 +566,7 @@ public class MainController implements Initializable
         this.docTableView.setItems(this.docsFiltered);
     }
 
+    /* Updates the details of changed documents in the view */
     public void refreshDocsDetails()
     {
         this.docsList.clear();
@@ -555,11 +577,11 @@ public class MainController implements Initializable
         this.docTableView.setItems(this.docsFiltered);
     }
 
+    /* Initialises all components of the main view */
     @Override
     public void initialize(URL url, ResourceBundle resources)
     {
         this.initTableView();
-
         this.initFilter();
         this.initSearch();
         this.initSort();
@@ -568,5 +590,30 @@ public class MainController implements Initializable
         this.initImportExport();
         this.initAddDoc();
         this.initAddDir();
+
+        BooleanBinding itemNotSelected = new BooleanBinding()
+        {
+            private final SelectionModel<Document> selectionModel = MainController.this.docTableView.getSelectionModel();
+
+            {
+                super.bind(this.selectionModel.selectedItemProperty());
+            }
+
+            @Override
+            protected boolean computeValue()
+            {
+                return this.selectionModel.isEmpty();
+            }
+        };
+
+        this.detailsButton.disableProperty().bind(itemNotSelected);
+        this.deleteButton.disableProperty().bind(itemNotSelected);
+
+        // Enable buttons if a document is selected
+        if (!this.docTableView.getSelectionModel().isEmpty())
+        {
+            this.deleteButton.setDisable(false);
+            this.detailsButton.setDisable(false);
+        }
     }
 }

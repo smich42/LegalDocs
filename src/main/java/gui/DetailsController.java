@@ -1,13 +1,5 @@
 package gui;
 
-import java.io.IOException;
-import java.net.URL;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.ResourceBundle;
-
 import document.Document;
 import document.DocumentManager;
 import javafx.beans.binding.BooleanBinding;
@@ -16,23 +8,36 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
 
+import java.io.IOException;
+import java.net.URL;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.ResourceBundle;
+
+/*
+ * Responsibilities:
+ * - Controls details view.
+ * - Initialises JavaFX controls.
+ */
+
 public class DetailsController implements Initializable
 {
+    // Main controller that owns this DetailsController
     private final MainController mainController;
+
     private final Document doc;
     private final DocumentManager dm;
 
+    /* FXML bindings */
     @FXML
     private TextField docNameTextField;
 
@@ -91,6 +96,10 @@ public class DetailsController implements Initializable
         this.doc = doc;
     }
 
+    /*
+     * Converts java.util.Date objects to java.time.LocalDate
+     * Necessary because javafx.scene.control.DatePicker uses LocalDate
+     */
     private static LocalDate toLocalDate(Date date)
     {
         if (date == null)
@@ -102,6 +111,10 @@ public class DetailsController implements Initializable
         return dateInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
+    /*
+     * Converts java.time.LocalDate objects to java.util.Date
+     * Necessary because javafx.scene.control.DatePicker uses LocalDate
+     */
     private static Date fromLocalDate(LocalDate localDate)
     {
         if (localDate == null)
@@ -113,46 +126,148 @@ public class DetailsController implements Initializable
         return Date.from(dateInstant);
     }
 
+    /* Returns main stage for DetailsView */
     private Stage getStage()
     {
         return (Stage) this.cancelButton.getScene().getWindow();
     }
 
+    /* Initialises ChoiceBoxes for case, client, court and court type */
     private void initChoiceBoxes()
     {
+        // Populate ChoiceBoxes
         this.caseChoiceBox.getItems().addAll(this.dm.listCases());
         this.clientChoiceBox.getItems().addAll(this.dm.listClients());
         this.courtChoiceBox.getItems().addAll(this.dm.listCourts());
         this.courtTypeChoiceBox.getItems().addAll(LCourt.CourtTypes.values());
 
-        // Using zhujik's answer at https://stackoverflow.com/a/14523434/7970195
+        // Catch ChoiceBox selection change to update other fields
+        // Adapted from zhujik's answer at https://stackoverflow.com/a/14523434/7970195
         this.caseChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
         {
             LCase selected = this.caseChoiceBox.getItems().get((Integer) number2);
-            this.fillCaseFields(selected);
+            this.changeCaseTo(selected);
         });
 
         this.clientChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
         {
             LClient selected = this.clientChoiceBox.getItems().get((Integer) number2);
-            this.fillClientFields(selected);
+            this.changeClientTo(selected);
         });
 
         this.courtChoiceBox.getSelectionModel().selectedIndexProperty().addListener((observableValue, number, number2) ->
         {
             LCourt selected = this.courtChoiceBox.getItems().get((Integer) number2);
-            this.fillCourtFields(selected);
+            this.changeCourtTo(selected);
         });
     }
 
-    private void fillDocumentFields(Document doc)
+    /* Initialises buttons for new case, client and court creation */
+    private void initNewButtons()
+    {
+        this.newCaseButton.setOnAction(e ->
+        {
+            // Ask for new case name
+            String name = this.askName();
+
+            if (name != null)
+            {
+                // Generate new case with defaults
+                LCase newCase = new LCase(name, this.courtChoiceBox.getValue(), this.clientChoiceBox.getValue(),
+                        fromLocalDate(this.dateAssignedDatePicker.getValue()));
+
+                // Add new case to DocumentManager
+                this.dm.addCase(newCase);
+
+                // Update fields
+                this.caseChoiceBox.getItems().add(newCase);
+                this.changeCaseTo(newCase);
+            }
+        });
+
+        this.newClientButton.setOnAction(e ->
+        {
+            // Ask for new client name
+            String name = this.askName();
+
+            if (name != null)
+            {
+                // Generate new client with defaults
+                LClient newClient = new LClient(name);
+
+                // Add new client to DocumentManager
+                this.dm.addClient(newClient);
+
+                // Update fields
+                this.clientChoiceBox.getItems().add(newClient);
+                this.changeClientTo(newClient);
+            }
+        });
+
+        this.newCourtButton.setOnAction(e ->
+        {
+            // Ask for new court name
+            String name = this.askName();
+
+            if (name != null)
+            {
+                // Generate new court with defaults
+                LCourt newCourt = new LCourt(name);
+
+                // Add new court to DocumentManager
+                this.dm.addCourt(newCourt);
+
+                // Update fields
+                this.courtChoiceBox.getItems().add(newCourt);
+                this.changeCourtTo(newCourt);
+            }
+        });
+    }
+
+    /*
+     *  Creates dialogue asking user for a name
+     *  Used for case, client and court creation
+     */
+    private String askName()
+    {
+        AskNameController askNameController = new AskNameController();
+
+        // Load view and set controller
+        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("askNameView.fxml"));
+        loader.setController(askNameController);
+
+        try
+        {
+            Parent root = loader.load();
+
+            // Set up stage and scene
+            Scene askNameScene = new Scene(root);
+            Stage askNameStage = new Stage();
+
+            askNameStage.setScene(askNameScene);
+            askNameStage.setTitle("Enter name");
+
+            // Show stage
+            askNameStage.showAndWait();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return askNameController.getName();
+    }
+
+    /* Changes all fields to match new document */
+    private void changeDocumentTo(Document doc)
     {
         this.docNameTextField.setText(doc.getName());
 
-        this.fillCaseFields(doc.getCase());
+        this.changeCaseTo(doc.getCase());
     }
 
-    private void fillCaseFields(LCase lCase)
+    /* Changes all fields to match new case */
+    private void changeCaseTo(LCase lCase)
     {
         if (lCase != null)
         {
@@ -161,12 +276,13 @@ public class DetailsController implements Initializable
 
             this.dateAssignedDatePicker.setValue(toLocalDate(lCase.getDateAssigned()));
 
-            this.fillClientFields(lCase.getClient());
-            this.fillCourtFields(lCase.getCourt());
+            this.changeClientTo(lCase.getClient());
+            this.changeCourtTo(lCase.getCourt());
         }
     }
 
-    private void fillClientFields(LClient lClient)
+    /* Changes all fields to match new client */
+    private void changeClientTo(LClient lClient)
     {
         if (lClient != null)
         {
@@ -178,7 +294,8 @@ public class DetailsController implements Initializable
         }
     }
 
-    private void fillCourtFields(LCourt lCourt)
+    /* Changes all fields to match new court */
+    private void changeCourtTo(LCourt lCourt)
     {
         if (lCourt != null)
         {
@@ -189,149 +306,105 @@ public class DetailsController implements Initializable
         }
     }
 
+    /* Saves changes to the document */
     private void saveChanges()
     {
         LCase lCase = this.caseChoiceBox.getValue();
         LClient lClient = this.clientChoiceBox.getValue();
         LCourt lCourt = this.courtChoiceBox.getValue();
 
-        lClient.setName(this.clientNameTextField.getText());
-        lClient.setEmail(this.clientEmailTextField.getText());
-        lClient.setPhone(this.clientPhoneTextField.getText());
+        // Change client details
+        if (lClient != null)
+        {
+            lClient.setName(this.clientNameTextField.getText());
 
-        lCourt.setType(this.courtTypeChoiceBox.getValue());
-        lCourt.setName(this.courtNameTextField.getText());
+            String email = this.clientEmailTextField.getText();
+            String phone = this.clientPhoneTextField.getText();
 
-        lCase.setName(this.caseNameTextField.getText());
-        lCase.setDateAssigned(fromLocalDate(this.dateAssignedDatePicker.getValue()));
-        lCase.setClient(lClient);
-        lCase.setCourt(lCourt);
+            if (email != null)
+            {
+                lClient.setEmail(email);
+            }
 
+            if (phone != null)
+            {
+                lClient.setPhone(phone);
+            }
+        }
+
+        // Change court details
+        if (lCourt != null)
+        {
+            lCourt.setType(this.courtTypeChoiceBox.getValue());
+            lCourt.setName(this.courtNameTextField.getText());
+        }
+
+        // Change case details
+        if (lCase != null)
+        {
+            lCase.setName(this.caseNameTextField.getText());
+            lCase.setDateAssigned(fromLocalDate(this.dateAssignedDatePicker.getValue()));
+            lCase.setClient(lClient);
+            lCase.setCourt(lCourt);
+        }
+
+        // Save changes to document
         this.doc.setName(this.docNameTextField.getText());
         this.doc.setCase(lCase);
 
+        // Ensure document added to DocumentManager
+        if (!this.dm.listDocuments().contains(this.doc))
+        {
+            this.dm.addAndSerialiseDocument(this.doc);
+            this.mainController.refreshDocsDetails();
+        }
+
+        // Update details of any documents with the same case, client or court
         for (Document curDoc : this.dm.listDocuments())
         {
-            if (curDoc.getClient() == this.clientChoiceBox.getValue())
+            if (lClient != null && curDoc.getClient() == this.clientChoiceBox.getValue())
             {
                 curDoc.getCase().setClient(lClient);
             }
 
-            if (curDoc.getCourt() == this.courtChoiceBox.getValue())
+            if (lCourt != null && curDoc.getCourt() == this.courtChoiceBox.getValue())
             {
                 curDoc.getCase().setCourt(lCourt);
             }
 
-            if (curDoc.getCase() == this.caseChoiceBox.getValue())
+            if (lCase != null && curDoc.getCase() == this.caseChoiceBox.getValue())
             {
                 curDoc.setCase(lCase);
             }
         }
     }
 
-    private void initNewButtons()
-    {
-        this.newCaseButton.setOnAction(e ->
-        {
-            String name = this.askName();
-
-            if (name != null)
-            {
-                LCase newCase = new LCase(name, this.courtChoiceBox.getValue(), this.clientChoiceBox.getValue(),
-                        fromLocalDate(this.dateAssignedDatePicker.getValue()));
-
-                this.dm.addCase(newCase);
-
-                this.caseChoiceBox.getItems().add(newCase);
-                this.caseChoiceBox.setValue(newCase);
-
-                this.fillCaseFields(newCase);
-            }
-        });
-
-        this.newClientButton.setOnAction(e ->
-        {
-            String name = this.askName();
-
-            if (name != null)
-            {
-                LClient newClient = new LClient(name);
-
-                this.dm.addClient(newClient);
-
-                this.clientChoiceBox.getItems().add(newClient);
-                this.clientChoiceBox.setValue(newClient);
-
-                this.fillClientFields(newClient);
-            }
-        });
-
-        this.newCourtButton.setOnAction(e ->
-        {
-            String name = this.askName();
-
-            if (name != null)
-            {
-                LCourt newCourt = new LCourt(name);
-
-                this.dm.addCourt(newCourt);
-
-                this.courtChoiceBox.getItems().add(newCourt);
-                this.courtChoiceBox.setValue(newCourt);
-
-                this.fillCourtFields(newCourt);
-            }
-        });
-    }
-
-    private String askName()
-    {
-        AskNameController askNameController = new AskNameController();
-
-        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("askNameView.fxml"));
-        loader.setController(askNameController);
-
-        try
-        {
-            Parent root = loader.load();
-
-            Scene askNameScene = new Scene(root);
-            Stage askNameStage = new Stage();
-
-            askNameStage.setScene(askNameScene);
-            askNameStage.setTitle("Enter name");
-
-            askNameStage.showAndWait();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        return askNameController.getName();
-    }
-
+    /* Initialises all components of the details view */
     @Override
     public void initialize(URL url, ResourceBundle resources)
     {
         this.initChoiceBoxes();
         this.initNewButtons();
-        this.fillDocumentFields(this.doc);
 
+        // Set current document
+        this.changeDocumentTo(this.doc);
+
+        // Set confirmation/cancel actions
         this.cancelButton.setOnAction(e -> this.getStage().close());
-
         this.confirmationButton.setOnAction(e ->
         {
+            // On confirmation, the changes must be saved and the document table must be updated before closing
             this.saveChanges();
             this.mainController.refreshDocsDetails();
             this.getStage().close();
         });
 
-        // Using Uluk Biy's answer at https://stackoverflow.com/a/23041348/7970195
-        BooleanBinding dataIsInvalid = new BooleanBinding()
+        // Adapted from Uluk Biy's answer at https://stackoverflow.com/a/23041348/7970195
+        BooleanBinding clientDataInvalid = new BooleanBinding()
         {
             {
-                super.bind(DetailsController.this.clientEmailTextField.textProperty(), DetailsController.this.clientPhoneTextField.textProperty());
+                super.bind(DetailsController.this.clientEmailTextField.textProperty(),
+                        DetailsController.this.clientPhoneTextField.textProperty());
             }
 
             @Override
@@ -348,18 +421,48 @@ public class DetailsController implements Initializable
             }
         };
 
-        this.invalidWarning.visibleProperty().bind(dataIsInvalid);
-        this.confirmationButton.disableProperty().bind(dataIsInvalid);
+        // Bind warning message visibility and confirmation button to invalid data
+        this.invalidWarning.visibleProperty().bind(clientDataInvalid);
+        this.confirmationButton.disableProperty().bind(clientDataInvalid);
 
-        // Using Johan Kaewberg's answer at https://stackoverflow.com/a/53186959/7970195
+        // Adapted from Johan Kaewberg's answer at https://stackoverflow.com/a/53186959/7970195
         this.dateAssignedDatePicker.setDayCellFactory(d -> new DateCell()
         {
             @Override
             public void updateItem(LocalDate item, boolean empty)
             {
                 super.updateItem(item, empty);
+                // Disable dates after current time
                 this.setDisable(item.isAfter(LocalDate.now()));
             }
         });
+
+        // Binding for Document not having been assigned a case
+        BooleanBinding doesNotHaveCase = new BooleanBinding()
+        {
+            {
+                super.bind(DetailsController.this.caseChoiceBox.valueProperty());
+            }
+
+            @Override
+            protected boolean computeValue()
+            {
+                return DetailsController.this.caseChoiceBox.getValue() == null;
+            }
+        };
+
+        // Disable all case-specific fields if no case is selected
+        this.clientChoiceBox.disableProperty().bind(doesNotHaveCase);
+        this.newClientButton.disableProperty().bind(doesNotHaveCase);
+        this.clientNameTextField.disableProperty().bind(doesNotHaveCase);
+        this.clientEmailTextField.disableProperty().bind(doesNotHaveCase);
+        this.clientPhoneTextField.disableProperty().bind(doesNotHaveCase);
+
+        this.courtChoiceBox.disableProperty().bind(doesNotHaveCase);
+        this.newCourtButton.disableProperty().bind(doesNotHaveCase);
+        this.courtNameTextField.disableProperty().bind(doesNotHaveCase);
+        this.courtTypeChoiceBox.disableProperty().bind(doesNotHaveCase);
+
+        this.dateAssignedDatePicker.disableProperty().bind(doesNotHaveCase);
     }
 }

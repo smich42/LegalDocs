@@ -1,11 +1,20 @@
 package legal;
 
+import java.io.Serial;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/*
+ * Responsibilities:
+ * - Represents a legal case.
+ */
+
 public class LCase implements java.io.Serializable
 {
-    private static final long serialVersionUID = 2L;
+    // Recommended for classes that implement java.io.Serializable
+    // Randomly generated
+    @Serial
+    private static final long serialVersionUID = -7531427557698015639L;
 
     private String name;
     private LCourt lCourt;
@@ -19,6 +28,8 @@ public class LCase implements java.io.Serializable
         this.setClient(lClient);
         this.setDateAssigned(dateAssigned);
     }
+
+    /* Accessor/mutator methods */
 
     public String getName()
     {
@@ -59,6 +70,7 @@ public class LCase implements java.io.Serializable
     {
         this.dateAssigned = new Date(dateAssigned.getTime())
         {
+            @Serial
             private static final long serialVersionUID = 2753455820327491277L;
 
             @Override
@@ -69,6 +81,7 @@ public class LCase implements java.io.Serializable
         };
     }
 
+    // Override toString() for displaying in a JavaFX TableView
     @Override
     public String toString()
     {

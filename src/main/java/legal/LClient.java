@@ -2,9 +2,17 @@ package legal;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import java.io.Serial;
+
+/*
+ * Responsibilities:
+ * - Represents the client of a case
+ * - Contains helper validator methods.
+ */
+
 public class LClient implements java.io.Serializable
 {
-
+    @Serial
     private static final long serialVersionUID = 1195714164291152059L;
 
     private String name;
@@ -22,6 +30,47 @@ public class LClient implements java.io.Serializable
         this.setEmail(email);
         this.setPhone(phone);
     }
+
+    public static boolean validateEmail(String email)
+    {
+        if (email == null)
+        {
+            return false;
+        }
+
+        // Prefer Apache Commons validator over custom implementation
+        EmailValidator validator = EmailValidator.getInstance();
+
+        return validator.isValid(email);
+    }
+
+    public static boolean validatePhone(String phone)
+    {
+        if (phone == null)
+        {
+            return false;
+        }
+
+        char[] phoneChars = phone.toCharArray();
+
+        if (phoneChars.length != 10)
+        {
+            return false;
+        }
+
+        // Number invalid if it contains non-digit characters
+        for (char c : phoneChars)
+        {
+            if (!Character.isDigit(c))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /* Accessor/mutator methods */
 
     public String getName()
     {
@@ -50,18 +99,6 @@ public class LClient implements java.io.Serializable
         }
     }
 
-    public static boolean validateEmail(String email)
-    {
-        if (email == null)
-        {
-            return false;
-        }
-
-        EmailValidator validator = EmailValidator.getInstance();
-
-        return validator.isValid(email);
-    }
-
     public String getPhone()
     {
         return this.phone;
@@ -79,31 +116,7 @@ public class LClient implements java.io.Serializable
         }
     }
 
-    public static boolean validatePhone(String phone)
-    {
-        if (phone == null)
-        {
-            return false;
-        }
-
-        char[] phoneChars = phone.toCharArray();
-
-        if (phoneChars.length != 10)
-        {
-            return false;
-        }
-
-        for (char c : phoneChars)
-        {
-            if (!Character.isDigit(c))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
+    // Override toString() for displaying in a JavaFX TableView
     @Override
     public String toString()
     {

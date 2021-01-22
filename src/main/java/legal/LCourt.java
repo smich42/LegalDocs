@@ -1,10 +1,21 @@
 package legal;
 
+import java.io.Serial;
+
+/*
+ * Responsibilities:
+ * - Represents a legal court.
+ */
+
 public class LCourt implements java.io.Serializable
 {
+    @Serial
     private static final long serialVersionUID = 18530754483472595L;
+
     private String name;
     private CourtTypes type;
+
+    // Overload constructor to assign UNSPECIFIED as the default court type
     public LCourt(String name)
     {
         this(name, CourtTypes.UNSPECIFIED);
@@ -15,6 +26,8 @@ public class LCourt implements java.io.Serializable
         this.setName(name);
         this.setType(type);
     }
+
+    /* Accessor/mutator methods */
 
     public String getName()
     {
@@ -36,6 +49,7 @@ public class LCourt implements java.io.Serializable
         this.type = type;
     }
 
+    // Override toString() for displaying in a JavaFX TableView
     @Override
     public String toString()
     {
@@ -46,6 +60,8 @@ public class LCourt implements java.io.Serializable
     {
         UNSPECIFIED, CRIMINAL, CIVIL, ADMINISTRATIVE;
 
+        // Override default enum toString() to beautify output
+        // toString() is used by javafx.scene.control.ChoiceBox to print enum values
         @Override
         public String toString()
         {
