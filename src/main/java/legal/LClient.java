@@ -1,11 +1,17 @@
 package legal;
 
+/*
+ * IMPORTS
+ * org.apache.commons.validator.routines.EmailValidator: Used for validation
+ * java.io.Serial: Used for serialisation (saving configuration)
+ */
+
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.io.Serial;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Represents the client of a case
  * - Contains helper validator methods.
  */

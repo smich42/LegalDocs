@@ -1,5 +1,20 @@
 package gui;
 
+/*
+ * IMPORTS
+ * package document: Used for document handling
+ * javafx.beans.binding.BooleanBinding: For binding properties of GUI elements to a binary condition
+ * package javafx.fxml: For making use of FXML to create views
+ * package javafx.scene: For basic operations on JavaFX graphics
+ * package javafx.stage: For operations on the containers containing JavaFX controls, etc.
+ * package legal: For classes representing cases, clients and courts
+ * java.io.IOException: To handle errors in I/O operations
+ * package java.time: Used for operations relating to time/date
+ * java.util.Date: Represents assignment date
+ * java.util.ResourceBundle: Used by JavaFX controllers for resources dependent on locale
+ * java.net.URL: For default FXML binding used by JavaFX initialisers
+ */
+
 import document.Document;
 import document.DocumentManager;
 import javafx.beans.binding.BooleanBinding;
@@ -24,7 +39,7 @@ import java.util.Date;
 import java.util.ResourceBundle;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Controls details view.
  * - Initialises JavaFX controls.
  */

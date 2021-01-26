@@ -1,5 +1,15 @@
 package document;
 
+/*
+ * IMPORTS
+ * package legal: For classes representing cases, clients and courts
+ * packages java.io, java.nio: For I/O operations
+ * java.util.Date: Represents Date objects  (e.g. assignment date)
+ * java.util.List, LinkedList: Necessary to use linked lists
+ * java.security: Used for hashing
+ * java.math.BigInteger: Used to represent large numbers in hashing
+ */
+
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
@@ -18,7 +28,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Represents a document managed by the solution.
  * - Encapsulates managed File objects
  */

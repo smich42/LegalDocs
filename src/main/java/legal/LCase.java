@@ -1,11 +1,18 @@
 package legal;
 
+/*
+ * IMPORTS
+ * java.io.Serial: Used for serialisation (saving configuration)
+ * java.text.SimpleDateFormat: Used for printing date assigned
+ * java.util.Date: Used to hold date assigned
+ */
+
 import java.io.Serial;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Represents a legal case.
  */
 

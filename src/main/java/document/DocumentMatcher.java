@@ -1,5 +1,14 @@
 package document;
 
+/*
+ * IMPORTS
+ * javafx.util.Pair: Pairs two items together; useful for pairing strings and their distance from the pattern
+ * packages java.io: For I/O operations
+ * package java.util: Used for collections, date handling and other utilities provided by Java
+ * package org.nustaq.serialization: Provides a faster implementation of object serialisation/deserialisation
+ */
+
+
 import javafx.util.Pair;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
@@ -8,7 +17,7 @@ import java.io.*;
 import java.util.*;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Represents a trie searchable with Levenshtein distance
  */
 
@@ -367,7 +376,7 @@ public class DocumentMatcher
     }
 
     /*
-     * Responsibilities:
+     * RESPONSIBILITIES
      *   - Represents trie nodes.
      */
     private static class Node implements java.io.Serializable

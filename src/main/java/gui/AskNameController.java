@@ -1,5 +1,13 @@
 package gui;
 
+/*
+ * IMPORTS
+ * package javafx.fxml: For making use of FXML to create views
+ * package javafx.scene: For basic operations on JavaFX graphics
+ * java.util.ResourceBundle: Used by JavaFX controllers for resources dependent on locale
+ * java.net.URL: For default FXML binding used by JavaFX initialisers
+ */
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -10,7 +18,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Controls view asking for a name
  * - Initialises JavaFX controls
  */

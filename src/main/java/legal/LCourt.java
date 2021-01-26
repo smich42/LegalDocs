@@ -1,9 +1,14 @@
 package legal;
 
+/*
+ * IMPORTS
+ * java.io.Serial: Used for serialisation (saving configuration)
+ */
+
 import java.io.Serial;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Represents a legal court.
  */
 

@@ -1,3 +1,12 @@
+/*
+ * IMPORTS
+ * document.DocumentManager: Main class starts a DocumentManager instance for the entire application
+ * package gui: Holds GUI controllers
+ * package javafx.application: For basic operations on the JavaFX app
+ * package javafx.fxml: For making use of FXML to create views
+ * package javafx.scene: For basic operations on JavaFX graphics
+ */
+
 import document.DocumentManager;
 import gui.MainController;
 import javafx.application.Application;
@@ -8,7 +17,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Application startup.
  * - Shows main view.
  * - Opens and closes DocumentManager instance.

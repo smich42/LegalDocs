@@ -1,5 +1,14 @@
 package document;
 
+/*
+ * IMPORTS
+ * package legal: For classes representing cases, clients and courts
+ * packages java.io, java.nio: For I/O operations
+ * package java.util: Used for collections, date handling and other utilities provided by Java
+ * package org.nustaq.serialization: Provides a faster implementation of object serialisation/deserialisation
+ */
+
+
 import legal.LCase;
 import legal.LClient;
 import legal.LCourt;
@@ -14,7 +23,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Handles operations on the Document objects that are managed by the solution.
  */
 

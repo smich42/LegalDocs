@@ -1,5 +1,19 @@
 package gui;
 
+/*
+ * IMPORTS
+ * package document: Used for document handling
+ * package javafx.application: For basic operations on the JavaFX app
+ * javafx.beans.binding.BooleanBinding: For binding properties of GUI elements to a binary condition
+ * package javafx.collections: For collections necessary to build a JavaFX GUI
+ * package javafx.fxml: For making use of FXML to create views
+ * package javafx.scene: For basic operations on JavaFX graphics
+ * package javafx.stage: For operations on the containers containing JavaFX controls, etc.
+ * package legal: For classes representing cases, clients and courts
+ * java.net.URL: For default FXML binding used by JavaFX initialisers
+ * packages java.io, java.nio: For I/O operations
+ */
+
 import document.Document;
 import document.DocumentManager;
 import document.DocumentMatcher;
@@ -36,7 +50,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /*
- * Responsibilities:
+ * RESPONSIBILITIES
  * - Controls main view.
  * - Initialises JavaFX controls.
  */
