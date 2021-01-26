@@ -70,6 +70,21 @@ public class MainController implements Initializable
     private TableView<Document> docTableView;
 
     @FXML
+    private TableColumn<Document, String> nameCol;
+
+    @FXML
+    private TableColumn<Document, String> caseCol;
+
+    @FXML
+    private TableColumn<Document, String> clientCol;
+
+    @FXML
+    private TableColumn<Document, String> courtCol;
+
+    @FXML
+    private TableColumn<Document, String> dateCol;
+
+    @FXML
     private Button addDocButton;
 
     @FXML
@@ -145,18 +160,12 @@ public class MainController implements Initializable
             return row;
         });
 
-        TableColumn<Document, String> nameCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(0);
-        TableColumn<Document, String> caseCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(1);
-        TableColumn<Document, String> clientCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(2);
-        TableColumn<Document, String> courtCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(3);
-        TableColumn<Document, String> dateCol = (TableColumn<Document, String>) this.docTableView.getColumns().get(4);
-
         // Bind values in table columns to Document attributes
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-        caseCol.setCellValueFactory(new PropertyValueFactory<>("case"));
-        clientCol.setCellValueFactory(new PropertyValueFactory<>("client"));
-        courtCol.setCellValueFactory(new PropertyValueFactory<>("court"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("dateAssigned"));
+        this.nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        this.caseCol.setCellValueFactory(new PropertyValueFactory<>("case"));
+        this.clientCol.setCellValueFactory(new PropertyValueFactory<>("client"));
+        this.courtCol.setCellValueFactory(new PropertyValueFactory<>("court"));
+        this.dateCol.setCellValueFactory(new PropertyValueFactory<>("dateAssigned"));
 
         // Set docsFiltered as the source for the table data
         this.docTableView.setItems(this.docsFiltered);
