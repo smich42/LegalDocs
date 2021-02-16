@@ -1,12 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" prefHeight="640.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1">
     <AnchorPane fx:id="mainAnchorPane" VBox.vgrow="ALWAYS">
         <TableView fx:id="docTableView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <placeholder>
+                <VBox>
+                    <TextFlow style="-fx-text-alignment: center">
+                        <padding>
+                            <Insets left="200" right="200" top="200" bottom="5"/>
+                        </padding>
+                        <Text text="No documents here!"
+                              style="-fx-font-family: 'Segoe UI Semibold'; -fx-font-size: 20"/>
+                    </TextFlow>
+                    <TextFlow style="-fx-text-alignment: center;">
+                        <padding>
+                            <Insets left="200" right="200" top="5" bottom="200"/>
+                        </padding>
+                        <Text text="You can add documents by selecting 'Add document' or 'Auto-add folder' in the bottom toolbar."
+                              style="-fx-font-family: 'Segoe UI'; -fx-font-size: 16"/>
+                    </TextFlow>
+                </VBox>
+            </placeholder>
             <columns>
                 <TableColumn fx:id="nameCol" prefWidth="300.0" text="Name"/>
                 <TableColumn fx:id="caseCol" prefWidth="128.0" text="Case"/>

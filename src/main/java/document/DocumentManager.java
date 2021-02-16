@@ -92,6 +92,12 @@ public class DocumentManager
                 && makeSerialisationPath(DocumentMatcher.SERIALISATION_PATH);
     }
 
+    /* Returns the name of the serialisation file for the Document list */
+    private static String getSerialFilename()
+    {
+        return SERIALISATION_PATH + SERIALISATION_NAME + ".serl_DOCS";
+    }
+
     /* Searches for exact matches of a query in all documents */
     public List<Document> searchExactly(String searchQuery)
     {
@@ -386,11 +392,8 @@ public class DocumentManager
     {
         if (this.addDocument(doc))
         {
-            // Serialise only if document successfully added and an up-to-date serialised trie does not already exist
-            if (!DocumentMatcher.upToDateSerialisedTrieExists(doc))
-            {
-                DocumentMatcher.serialiseTrieOf(doc);
-            }
+            // Serialise only if document successfully added
+            DocumentMatcher.serialiseTrieOf(doc);
         }
     }
 
@@ -497,7 +500,7 @@ public class DocumentManager
     /* Restores serialised configuration, if it exists */
     public List<Document> deserialiseDocuments()
     {
-        String serialName = this.getSerialFilename();
+        String serialName = getSerialFilename();
         File serialFile = new File(serialName);
 
         // Try to deserialise only if serialised configuration file exists
@@ -527,7 +530,7 @@ public class DocumentManager
         // Ensure path exists
         if (makeSerialisationDirectories())
         {
-            String serialName = this.getSerialFilename();
+            String serialName = getSerialFilename();
 
             try (OutputStream fSer = new FileOutputStream(serialName, false);
                  FSTObjectOutput outSer = new FSTObjectOutput(fSer))
@@ -547,7 +550,7 @@ public class DocumentManager
     /* Deletes serialised configuration */
     public void deleteSerialisedDocuments()
     {
-        String serialName = this.getSerialFilename();
+        String serialName = getSerialFilename();
         File serialFile = new File(serialName);
 
         // Delete file
@@ -584,7 +587,7 @@ public class DocumentManager
         // Ensure path exists
         if (makeSerialisationDirectories())
         {
-            String serialName = this.getSerialFilename();
+            String serialName = getSerialFilename();
 
             try
             {
@@ -601,7 +604,7 @@ public class DocumentManager
     /* Exports configuration file to user desktop */
     public boolean exportSerialised()
     {
-        String serialName = this.getSerialFilename();
+        String serialName = getSerialFilename();
         File serialFile = new File(serialName);
 
         if (serialFile.exists())
@@ -623,11 +626,5 @@ public class DocumentManager
         }
 
         return false; // Unsuccessful export
-    }
-
-    /* Returns the name of the serialisation file for the Document list */
-    private String getSerialFilename()
-    {
-        return SERIALISATION_PATH + SERIALISATION_NAME + ".serl_DOCS";
     }
 }

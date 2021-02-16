@@ -52,9 +52,9 @@ public class LClient implements java.io.Serializable
 
     public static boolean validatePhone(String phone)
     {
-        if (phone == null)
+        if (phone == null || phone.isBlank())
         {
-            return false;
+            return true; // No phone is a valid phone
         }
 
         char[] phoneChars = phone.toCharArray();

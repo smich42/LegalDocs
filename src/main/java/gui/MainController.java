@@ -180,28 +180,38 @@ public class MainController implements Initializable
 
         this.filterTextField.setOnKeyReleased(e ->
         {
-            switch (this.filterChoiceBox.getValue())
+            if (this.filterTextField.getText() == null || this.filterTextField.getText().isBlank())
             {
-                // Modify filter to match documents for which category name contains the filter text
-                // Not case sensitive
-                case "Name":
-                    this.docsFiltered.setPredicate(x -> x.getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
-                    break;
+                this.docsFiltered.setPredicate(x -> true);
+            }
+            else
+            {
+                switch (this.filterChoiceBox.getValue())
+                {
+                    // Modify filter to match documents for which category name contains the filter text
+                    // Not case sensitive
+                    case "Name":
+                        this.docsFiltered.setPredicate(x -> x.getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
+                        break;
 
-                case "Case":
-                    this.docsFiltered.setPredicate(x -> x.getCase().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
-                    break;
+                    case "Case":
+                        this.docsFiltered.setPredicate(x -> x.getCase() != null
+                                && x.getCase().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
+                        break;
 
-                case "Client":
-                    this.docsFiltered.setPredicate(x -> x.getClient().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
-                    break;
+                    case "Client":
+                        this.docsFiltered.setPredicate(x -> x.getClient() != null
+                                && x.getClient().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
+                        break;
 
-                case "Court":
-                    this.docsFiltered.setPredicate(x -> x.getCourt().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
-                    break;
+                    case "Court":
+                        this.docsFiltered.setPredicate(x -> x.getCourt() != null
+                                && x.getCourt().getName().toLowerCase().contains(this.filterTextField.getText().toLowerCase()));
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         });
 

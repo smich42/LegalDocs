@@ -98,7 +98,6 @@ public class Document implements java.io.Serializable
 
         S = S.replaceAll("\\s+", " "); // Replace double spaces with single space
 
-        // Kobi's answer at https://stackoverflow.com/a/21209161/7970195
         return S.replaceAll("[^-\\w\\s]", replacement).trim(); // Catch all punctuation except hyphen
     }
 
@@ -214,6 +213,7 @@ public class Document implements java.io.Serializable
         return "";
     }
 
+    /* Extracts the text from a pdf file */
     private String getPDFText(File file)
     {
         String fileExtension = getFileExtension(file);

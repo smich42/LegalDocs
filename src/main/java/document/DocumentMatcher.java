@@ -276,7 +276,7 @@ public class DocumentMatcher
     public boolean matches(String pattern, int maxDistance)
     {
         // Immediately return true if pattern is empty
-        if (pattern.isBlank() || pattern.isEmpty())
+        if (pattern.isBlank())
         {
             return true;
         }
@@ -330,7 +330,7 @@ public class DocumentMatcher
 
         ArrayList<Pair<String, Integer>> results = new ArrayList<>();
 
-        // Only add to results if the current node contains a term, i.e. is a leaf node
+        // Only add to results if the current node contains a term
         if (curNode.isTerm())
         {
             Pair<String, Integer> result = new Pair<>(curNode.getTerm(), curRow[curRow.length - 1]);
@@ -384,8 +384,6 @@ public class DocumentMatcher
         @Serial
         private static final long serialVersionUID = 4250386998186331854L;
 
-        // Unconventional node structure for a trie;
-        // Characters saved in the nodes--edges have no values
         private final Map<Character, Integer> children;
         private final char val;
         private String term;
