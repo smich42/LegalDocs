@@ -30,7 +30,7 @@ import java.util.*;
 public class DocumentManager
 {
     // Path for serialised documents
-    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "\\Downloads\\serial\\docs\\";
+    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "/Downloads/serial/docs/";
     // Name for serialised documents
     public static final String SERIALISATION_NAME = "documents";
 
@@ -311,8 +311,8 @@ public class DocumentManager
                 }
 
                 // Swap documents if needed
-                if (indexName.compareTo(curName) < 0 || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(
-                        curDoc.getName()) <= 0))
+                if (indexName.compareTo(curName) < 0
+                        || (indexName.compareTo(curName) == 0 && indexDoc.getName().compareTo(curDoc.getName()) <= 0))
                 {
                     index += 1; // Move on to next document
                     Collections.swap(toSort, index, i);

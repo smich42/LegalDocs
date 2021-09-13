@@ -26,7 +26,7 @@ public class DocumentMatcher
     // Maximum words per search string
     public static final int SEARCH_WORDS_MAX = 2;
     // Path for serialised tries
-    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "\\Downloads\\serial\\matchers\\";
+    public static final String SERIALISATION_PATH = System.getProperty("user.home") + "/Downloads/serial/matchers/";
 
     // Trie nodes
     List<Node> nodes;
@@ -322,7 +322,7 @@ public class DocumentMatcher
                 int subCost = (currentPos != patternPos) ? 1 : 0;
 
                 curRow[i] = Math.min(Math.min(prevRow[i] + 1, // Deletion
-                        curRow[i - 1] + 1 // Insertion
+                                curRow[i - 1] + 1 // Insertion
                         ), prevRow[i - 1] + subCost // Substitution
                 );
             }

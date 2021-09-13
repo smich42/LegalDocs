@@ -39,9 +39,9 @@ public class LClient implements java.io.Serializable
 
     public static boolean validateEmail(String email)
     {
-        if (email == null)
+        if (email == null || email.isBlank())
         {
-            return false;
+            return true;
         }
 
         // Prefer Apache Commons validator over custom implementation
